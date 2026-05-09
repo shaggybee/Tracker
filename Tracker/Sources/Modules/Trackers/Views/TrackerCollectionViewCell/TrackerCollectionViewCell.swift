@@ -133,10 +133,10 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             return
         case .complete:
             completeButton.alpha = 0.3
-            completeButton.setImage(UIImage(resource: .done), for: .normal)
+            completeButton.setImage(UIImage(resource: .roundDone), for: .normal)
         case .uncomplete:
             completeButton.alpha = 1
-            completeButton.setImage(UIImage(resource: .plus), for: .normal)
+            completeButton.setImage(UIImage(resource: .roundPlus), for: .normal)
         }
         
         completeButton.isHidden = false
