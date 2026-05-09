@@ -7,14 +7,13 @@
 
 import UIKit
 
-final class TrackerScheduleViewController: UIViewController {
-    
+final class TrackerScheduleViewController: UIViewController, TrackerScheduleViewControllerProtocol {
     // MARK: - Public properties
+    var presenter: TrackerScheduleViewPresenterProtocol?
+    
     weak var delegate: TrackerScheduleViewControllerDelegate?
     
-    // MARK: - Private properties
-    private var selectedDays: Weekdays = []
-    
+    // MARK: - Private properties   
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         
@@ -53,17 +52,7 @@ final class TrackerScheduleViewController: UIViewController {
         return button
     }().forAutoLayout
     
-    init(selectedDays: Weekdays) {
-        self.selectedDays = selectedDays
-        
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Life cycles VC
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -111,36 +100,43 @@ final class TrackerScheduleViewController: UIViewController {
     }
     
     @objc private func didTapSubmitButton(_ sender: UIButton) {
-        delegate?.trackerScheduleViewController(self, didFinishWith: selectedDays)
+        delegate?.trackerScheduleViewController(self, didFinishWith: presenter?.selectedDays ?? [])
     }
 }
 
+// MARK: - UITableViewDataSource
 extension TrackerScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        Weekdays.orderedDays.count
+        presenter?.orderedDays.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let presenter else { return UITableViewCell() }
+        
         let cell = tableView.dequeueReusableCell(
             withIdentifier: TrackerScheduleTableViewCell.reuseIdentifier,
             for: indexPath)
         
         guard let cell = cell as? TrackerScheduleTableViewCell,
-              let day = Weekdays.orderedDays[safe: indexPath.row] else {
+              let day = presenter.orderedDays[safe: indexPath.row] else {
             return UITableViewCell()
         }
         
-        if indexPath.row == Weekdays.orderedDays.count - 1 {
+        if indexPath.row == presenter.orderedDays.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
         }
         
         cell.delegate = self
+        
+        let selectedDays = presenter.selectedDays
+        
         cell.configure(with: day.fullName, isWeekdaySelected: selectedDays.contains(day))
         
         return cell
     }
 }
 
+// MARK: - UITableViewDelegate
 extension TrackerScheduleViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         Constants.cellHeight
@@ -151,16 +147,13 @@ extension TrackerScheduleViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - TrackerScheduleTableViewCellDelegate
 extension TrackerScheduleViewController: TrackerScheduleTableViewCellDelegate {
     func trackerScheduleCell(_ cell: TrackerScheduleTableViewCell, didChange isWeekdaySelected: Bool) {
         guard let indexPath = tableView.indexPath(for: cell),
-              let day = Weekdays.orderedDays[safe: indexPath.row] else { return }
+              let day = presenter?.orderedDays[safe: indexPath.row] else { return }
         
-        if isWeekdaySelected {
-            selectedDays.insert(day)
-        } else {
-            selectedDays.remove(day)
-        }
+        presenter?.setDaySelected(day, isSelected: isWeekdaySelected)
     }
 }
 

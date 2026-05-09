@@ -59,7 +59,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         return stack
     }().forAutoLayout
     
-    // MARK: - Life cycles VC
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         

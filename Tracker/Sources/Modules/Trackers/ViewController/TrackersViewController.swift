@@ -114,6 +114,7 @@ final class TrackersViewController: UIViewController {
     }
 }
 
+// MARK: - TrackerTypeSelectionViewControllerDelegate
 extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
     func trackerTypeSelectionViewController(_ vc: TrackerTypeSelectionViewController, didSelect type: TrackerType) {
         vc.dismiss(animated: true)
@@ -128,6 +129,7 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
     }
 }
 
+// MARK: - TrackerFormViewControllerDelegate
 extension TrackersViewController: TrackerFormViewControllerDelegate {
     func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
         

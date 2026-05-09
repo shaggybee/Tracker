@@ -11,9 +11,10 @@ protocol TrackerFormViewPresenterProtocol {
     var view: TrackerFormViewControllerProtocol? { get set }
     var selectedDays: Weekdays { get }
     var trackerName: String { get }
-    var trackerOptions: [TrackerOption] { get }
+    var trackerOptions: [TrackerOptionType] { get }
     var trackerFormTitle: String { get }
     func viewDidLoad()
     func didChangeSelectedDays(_ selectedDays: Weekdays)
     func didChangeTrackerName(_ trackerName: String)
+    func getTrackerModel() -> Tracker
 }

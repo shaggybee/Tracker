@@ -6,5 +6,5 @@
 //
 
 protocol TrackerOptionsViewDelegate: AnyObject {
-    func trackerOptionsView(_ view: TrackerOptionsView, didSelect option: TrackerOption)
+    func trackerOptionsView(_ view: TrackerOptionsView, didSelectOptionWith type: TrackerOptionType)
 }

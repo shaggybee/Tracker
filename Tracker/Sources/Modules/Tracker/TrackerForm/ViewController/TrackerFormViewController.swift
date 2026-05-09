@@ -79,6 +79,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         return trackerOptionsView
     }().forAutoLayout
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -103,7 +104,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         nameInputField.setError(error)
     }
     
-    func setDescription(for trackerOption: TrackerOption, with text: String) {
+    func setDescription(for trackerOption: TrackerOptionType, with text: String) {
         trackerOptionsView.setDescription(for: trackerOption, with: text)
     }
     
@@ -159,7 +160,11 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     @objc private func didTapSubmitButton(_ sender: UIButton) {
+        guard let presenter else { return }
         
+        let tracker = presenter.getTrackerModel()
+        
+        delegate?.trackerFormViewController(self, didCreateTracker: tracker)
     }
     
     @objc private func didTapCancelButton(_ sender: UIButton) {
@@ -171,20 +176,26 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
 }
 
+// MARK: - TrackerOptionsViewDelegate
 extension TrackerFormViewController: TrackerOptionsViewDelegate {
-    func trackerOptionsView(_ view: TrackerOptionsView, didSelect option: TrackerOption) {
-        switch option {
+    func trackerOptionsView(_ view: TrackerOptionsView, didSelectOptionWith type: TrackerOptionType) {
+        switch type {
         case .category:
             return
         case .schedule:
-            let trackerScheduleVC = TrackerScheduleViewController(selectedDays: presenter?.selectedDays ?? [])
+            let trackerScheduleVC = TrackerScheduleViewController()
+            let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter?.selectedDays ?? [])
+            
+            scheduleViewPresenter.view = trackerScheduleVC
             trackerScheduleVC.delegate = self
+            trackerScheduleVC.presenter = scheduleViewPresenter
             
             present(trackerScheduleVC, animated: true)
         }
     }
 }
 
+// MARK: - TrackerScheduleViewControllerDelegate
 extension TrackerFormViewController: TrackerScheduleViewControllerDelegate {
     func trackerScheduleViewController(_ vc: TrackerScheduleViewController, didFinishWith selectedDays: Weekdays) {
         presenter?.didChangeSelectedDays(selectedDays)
@@ -193,6 +204,7 @@ extension TrackerFormViewController: TrackerScheduleViewControllerDelegate {
     }
 }
 
+// MARK: - InputFieldViewDelegate
 extension TrackerFormViewController: InputFieldViewDelegate {
     func inputFieldView(_ inputFieldView: InputFieldView, didChange text: String) {
         presenter?.didChangeTrackerName(text)

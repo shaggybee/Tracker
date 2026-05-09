@@ -11,5 +11,5 @@ protocol TrackerFormViewControllerProtocol: AnyObject {
     var presenter: TrackerFormViewPresenterProtocol? { get set }
     func setSubmitButtonEnabled(_ isEnabled: Bool)
     func setTrackerNameFieldError(_ error: String?)
-    func setDescription(for trackerOption: TrackerOption, with text: String)
+    func setDescription(for trackerOption: TrackerOptionType, with text: String)
 }

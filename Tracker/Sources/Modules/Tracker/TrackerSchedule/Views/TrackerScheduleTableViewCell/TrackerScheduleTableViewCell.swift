@@ -8,10 +8,13 @@
 import UIKit
 
 final class TrackerScheduleTableViewCell: UITableViewCell {
+    // MARK: - Static properties
     static let reuseIdentifier = "TrackerScheduleTableViewCell"
     
+    // MARK: - Public properties
     weak var delegate: TrackerScheduleTableViewCellDelegate?
     
+    // MARK: - Private properties
     private lazy var weekdayLabel: UILabel = {
         let label = UILabel()
         
@@ -43,6 +46,7 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         return daySelectionSwitch
     }().forAutoLayout
     
+    // MARK: - Initializers
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -54,11 +58,13 @@ final class TrackerScheduleTableViewCell: UITableViewCell {
         nil
     }
     
+    // MARK: - Public methods
     func configure(with title: String, isWeekdaySelected: Bool) {
         weekdayLabel.text = title
         daySelectionSwitch.isOn = isWeekdaySelected
     }
     
+    // MARK: - Private methods
     private func setElements() {
         backgroundColor = .background
         selectionStyle = .none

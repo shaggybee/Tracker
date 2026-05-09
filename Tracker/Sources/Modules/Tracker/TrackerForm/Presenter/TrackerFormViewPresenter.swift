@@ -11,7 +11,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     // MARK: - Public properties
     weak var view: TrackerFormViewControllerProtocol?
     
-    var trackerOptions: [TrackerOption] {
+    var trackerOptions: [TrackerOptionType] {
         trackerType == .habit ? [.category, .schedule] : [.category]
     }
     
@@ -29,10 +29,12 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         !isTrackerNameInvalid && !trackerName.isEmpty && !selectedDays.isEmpty
     }
     
+    // MARK: - Initializers
     init(trackerType: TrackerType) {
         self.trackerType = trackerType
     }
     
+    // MARK: - Public methods
     func viewDidLoad() {
         isTrackerNameInvalid = false
         
@@ -48,10 +50,12 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func didChangeTrackerName(_ trackerName: String) {
-        if trackerName.count > Constants.trackerNameMaxLength && !isTrackerNameInvalid {
-            isTrackerNameInvalid = true
-            
-            view?.setTrackerNameFieldError(Constants.trackerNameError)
+        if trackerName.count > Constants.trackerNameMaxLength {
+            if (!isTrackerNameInvalid) {
+                isTrackerNameInvalid = true
+                
+                view?.setTrackerNameFieldError(Constants.trackerNameError)
+            }
         } else if isTrackerNameInvalid {
             isTrackerNameInvalid = false
             
@@ -61,6 +65,16 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         self.trackerName = trackerName
         
         view?.setSubmitButtonEnabled(canSaveTracker)
+    }
+    
+    func getTrackerModel() -> Tracker {
+        Tracker(
+            id: UUID(),
+            name: trackerName,
+            colorHex: nil,
+            emoji: nil,
+            type: trackerType,
+            schedule: selectedDays)
     }
 }
 

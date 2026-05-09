@@ -12,21 +12,27 @@ final class TrackerOptionsView: UIView {
     weak var delegate: TrackerOptionsViewDelegate?
     
     // MARK: - Private properties
-    private var trackerOptions: [TrackerOption] = []
+    private var trackerOptions: [TrackerOptionType] = []
     
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView()
+    private lazy var optionsStackView: UIStackView = {
+        let stackView = UIStackView()
         
-        tableView.backgroundColor = .background
-        tableView.layer.cornerRadius = Radius.size16
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
-        tableView.separatorColor = .ypGray
-        tableView.isScrollEnabled = false
+        stackView.axis = .vertical
         
-        return tableView
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(
+            top: Spacing.space16,
+            left: Spacing.space16,
+            bottom: Spacing.space16,
+            right: Spacing.space16
+        )
+        stackView.spacing = Spacing.space14
+        
+        return stackView
     }().forAutoLayout
     
-    init(trackerOptions: [TrackerOption] = []) {
+    // MARK: - Initializers
+    init(trackerOptions: [TrackerOptionType] = []) {
         super.init(frame: .zero)
         
         self.trackerOptions = trackerOptions
@@ -39,89 +45,74 @@ final class TrackerOptionsView: UIView {
         nil
     }
     
-    func setDescription(for trackerOption: TrackerOption, with text: String) {
-        guard let index = trackerOptions.firstIndex(where: { $0 == trackerOption }),
-              let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)),
-              let cell = cell as? TrackerOptionsTableViewCell else { return }
+    func setDescription(for trackerOption: TrackerOptionType, with text: String) {
+        let optionViews = optionsStackView.arrangedSubviews.compactMap { $0 as? TrackerOptionView }
         
-        var config = cell.contentConfiguration as? UIListContentConfiguration
+        guard let index = trackerOptions.firstIndex(of: trackerOption),
+              let optionView = optionViews[safe: index] else { return }
         
-        config?.secondaryText = text
-        cell.contentConfiguration = config
+        optionView.setDescription(with: text)
     }
     
     // MARK: - Private methods
     private func setElements() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(
-            TrackerOptionsTableViewCell.self,
-            forCellReuseIdentifier: TrackerOptionsTableViewCell.reuseIdentifier)
+        backgroundColor = .background
+        clipsToBounds = true
+        layer.cornerRadius = Radius.size16
         
-        addSubview(tableView)
+        trackerOptions.forEach { optionType in
+            let optionView = TrackerOptionView().forAutoLayout
+            
+            switch optionType {
+            case .category:
+                optionView.setTitle(with: Constants.titleForCategoryOption)
+            case .schedule:
+                optionView.setTitle(with: Constants.titleForScheduleOption)
+            }
+            
+            optionView.onTap = { [weak self] in
+                guard let self else { return }
+                
+                delegate?.trackerOptionsView(self, didSelectOptionWith: optionType)
+            }
+            
+            optionsStackView.addArrangedSubview(optionView)
+            
+            if optionType != trackerOptions.last {
+                let separatorView = getSeparatorView()
+                
+                optionsStackView.addArrangedSubview(separatorView)
+            }
+        }
+        
+        addSubview(optionsStackView)
         
         setConstraints()
     }
     
     private func setConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * trackerOptions.count))
+            optionsStackView.topAnchor.constraint(equalTo: topAnchor),
+            optionsStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            optionsStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            optionsStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
     }
+    
+    private func getSeparatorView() -> UIView {
+        let separatorView = UIView(frame: .zero)
+        
+        separatorView.backgroundColor = .ypGray
+        separatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        return separatorView.forAutoLayout
+    }
 }
 
-extension TrackerOptionsView: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        75
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        1
-    }
-}
-
-extension TrackerOptionsView: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        trackerOptions.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: TrackerOptionsTableViewCell.reuseIdentifier,
-            for: indexPath)
-        
-        guard let cell = cell as? TrackerOptionsTableViewCell,
-              let trackerOption = trackerOptions[safe: indexPath.row] else {
-            return UITableViewCell()
-        }
-        
-        if indexPath.row == trackerOptions.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-        }
-        
-        var contentConfiguration = cell.contentConfiguration as? UIListContentConfiguration
-        
-        switch trackerOption {
-        case .category:
-            contentConfiguration?.text = "Категория"
-        case .schedule:
-            contentConfiguration?.text = "Расписание"
-        }
-        
-        cell.contentConfiguration = contentConfiguration
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let trackerOption = trackerOptions[safe: indexPath.row] else {
-            return
-        }
-        
-        delegate?.trackerOptionsView(self, didSelect: trackerOption)
+// MARK: - Constants
+private extension TrackerOptionsView {
+    enum Constants {
+        static let titleForCategoryOption: String = "Категория"
+        static let titleForScheduleOption: String = "Расписание"
     }
 }

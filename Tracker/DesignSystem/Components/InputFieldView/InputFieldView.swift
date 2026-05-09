@@ -21,6 +21,8 @@ final class InputFieldView: UIView {
         
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: Spacing.space16, height: 0))
         textField.leftViewMode = .always
+        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: Spacing.space16, height: 0))
+        textField.rightViewMode = .unlessEditing
         
         textField.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         
