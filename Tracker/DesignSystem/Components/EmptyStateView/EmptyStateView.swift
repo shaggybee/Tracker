@@ -29,7 +29,7 @@ final class EmptyStateView: UIView {
         let stackView = UIStackView()
         
         stackView.axis = .vertical
-        stackView.spacing = Spacing.sm
+        stackView.spacing = Spacing.space8
         stackView.alignment = .center
         
         return stackView
@@ -74,6 +74,7 @@ final class EmptyStateView: UIView {
     }
 }
 
+// MARK: - Constants
 private extension EmptyStateView {
     enum Constants {
         static let imageSize: CGFloat = 80
