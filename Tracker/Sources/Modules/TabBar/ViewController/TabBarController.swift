@@ -25,7 +25,12 @@ final class TabBarController: UITabBarController {
         
         addTopBorder()
         
+        let trackersViewPresenter = TrackersViewPresenter()
         let trackersViewController = TrackersViewController()
+        
+        trackersViewPresenter.view = trackersViewController
+        trackersViewController.presenter = trackersViewPresenter
+        
         let trackersNavigationController = UINavigationController(rootViewController: trackersViewController)
         trackersViewController.tabBarItem = UITabBarItem(
             title: Constants.trackersBarItemTitle,

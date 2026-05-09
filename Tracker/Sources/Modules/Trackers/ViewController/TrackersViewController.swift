@@ -7,13 +7,11 @@
 
 import UIKit
 
-final class TrackersViewController: UIViewController {
+final class TrackersViewController: UIViewController, TrackersViewControllerProtocol {
+    // MARK: - Public properties
+    var presenter: TrackersViewPresenterProtocol?
     
-    // MARK: - Private properties
-    private var categories: [TrackerCategory] = []
-    private var completedTrackers: [TrackerRecord] = []
-    private var selectedDate: Date = Date()
-    
+    // MARK: - Private properties   
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
         
@@ -58,10 +56,28 @@ final class TrackersViewController: UIViewController {
         return emptyStateView
     }().forAutoLayout
     
+    private lazy var emptyStateViewConstraints: [NSLayoutConstraint] = [
+        emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
+        emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+        emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setElements()
+        presenter?.viewDidLoad()
+    }
+    
+    // MARK: - Public methods
+    func showEmptyState() {
+        view.addSubview(emptyStateView)
+        
+        NSLayoutConstraint.activate(emptyStateViewConstraints)
+    }
+    
+    func showTrackersList() {
+        
     }
     
     // MARK: - Private methods
@@ -72,7 +88,6 @@ final class TrackersViewController: UIViewController {
 
         view.addSubview(titleLable)
         view.addSubview(searchTextField)
-        view.addSubview(emptyStateView)
         
         setupConstraints()
     }
@@ -95,15 +110,11 @@ final class TrackersViewController: UIViewController {
             searchTextField.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: Spacing.space8),
             searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            
-            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
         ])
     }
     
     @objc private func didChangeDate(_ sender: UIDatePicker) {
-        selectedDate = sender.date
+        presenter?.setDate(sender.date)
     }
     
     @objc private func didTapAddTracker(_ sender: UIButton) {
@@ -132,7 +143,8 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
 // MARK: - TrackerFormViewControllerDelegate
 extension TrackersViewController: TrackerFormViewControllerDelegate {
     func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
-        
+        presenter?.addTracker(tracker)
+        vc.dismiss(animated: true)
     }
 }
 
