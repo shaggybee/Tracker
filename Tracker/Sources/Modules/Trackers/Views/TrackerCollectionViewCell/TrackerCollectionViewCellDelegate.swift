@@ -6,5 +6,5 @@
 //
 
 protocol TrackerCollectionViewCellDelegate: AnyObject {
-    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didChange isTracked: Bool)
+    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool)
 }

@@ -15,7 +15,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     weak var delegate: TrackerCollectionViewCellDelegate?
     
     // MARK: - Private properties
-    private var actionButtonState: TrackerCellViewModel.ActionButtonState = .hidden {
+    private var completeButtonState: TrackerCellViewModel.ActionButtonState = .hidden {
         didSet {
             configureCompleteButton()
         }
@@ -90,7 +90,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         countLabel.text = "\(String(model.completedDaysCount)) дней"
         cardView.backgroundColor = model.color
         completeButton.backgroundColor = model.color
-        actionButtonState = model.actionButtonState
+        completeButtonState = model.buttonState
     }
     
     // MARK: - Private methods
@@ -126,14 +126,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     private func configureCompleteButton() {
-        switch actionButtonState {
+        switch completeButtonState {
         case .hidden:
             completeButton.isHidden = true
             
             return
-        case .track:
+        case .complete:
+            completeButton.alpha = 0.3
             completeButton.setImage(UIImage(resource: .done), for: .normal)
-        case .untrack:
+        case .uncomplete:
+            completeButton.alpha = 1
             completeButton.setImage(UIImage(resource: .plus), for: .normal)
         }
         
@@ -141,14 +143,15 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func didTapCompleteButton() {
-        if actionButtonState == .hidden { return }
+        if completeButtonState == .hidden { return }
 
-        let isTracked = actionButtonState == .untrack
+        let isCompleted = completeButtonState == .uncomplete
         
-        delegate?.trackerCollectionViewCell(self, didChange: isTracked)
+        delegate?.trackerCollectionViewCell(self, didToggleCompleted: isCompleted)
     }
 }
 
+// MARK: - Constants
 private extension TrackerCollectionViewCell {
     enum Constants {
         static let cellReuseIdentifier = "TrackerCollectionViewCell"

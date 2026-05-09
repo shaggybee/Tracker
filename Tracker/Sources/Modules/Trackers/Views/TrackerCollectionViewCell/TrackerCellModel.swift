@@ -10,12 +10,12 @@ import UIKit
 struct TrackerCellViewModel {
     enum ActionButtonState {
         case hidden
-        case track
-        case untrack
+        case complete
+        case uncomplete
     }
     
     let name: String
     let color: UIColor
     let completedDaysCount: Int
-    let actionButtonState: ActionButtonState
+    let buttonState: ActionButtonState
 }
