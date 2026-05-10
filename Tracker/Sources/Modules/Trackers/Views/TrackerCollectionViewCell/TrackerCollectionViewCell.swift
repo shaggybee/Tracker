@@ -15,7 +15,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     weak var delegate: TrackerCollectionViewCellDelegate?
     
     // MARK: - Private properties
-    private var completeButtonState: TrackerCellViewModel.ActionButtonState = .hidden {
+    private var availableActionState: TrackerAvailableAction = .none {
         didSet {
             configureCompleteButton()
         }
@@ -52,6 +52,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let button = UIButton(type: .custom)
         
         button.clipsToBounds = true
+        button.tintColor = .white
+        button.layer.cornerRadius = Constants.buttonSize / 2
         
         button.addTarget(
              self,
@@ -67,14 +69,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         
         stack.spacing = Spacing.space8
         stack.axis = .horizontal
-        stack.distribution = .fill
+        stack.alignment = .center
         
         return stack
     }().forAutoLayout
     
     // MARK: - Initializers
-    init() {
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         setElements()
     }
@@ -85,12 +87,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with model: TrackerCellViewModel) {
+    func configure(with model: TrackerViewModel) {
         trackerNameLabel.text = model.name
         countLabel.text = "\(String(model.completedDaysCount)) дней"
         cardView.backgroundColor = model.color
         completeButton.backgroundColor = model.color
-        completeButtonState = model.buttonState
+        availableActionState = model.availableAction
     }
     
     // MARK: - Private methods
@@ -112,40 +114,44 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cardView.heightAnchor.constraint(equalToConstant: 90),
+            cardView.heightAnchor.constraint(equalToConstant: Constants.cardViewHeight),
             
             trackerNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
-            trackerNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: Spacing.space12),
+            trackerNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Spacing.space12),
             trackerNameLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -Spacing.space12),
             
             footerStackView.topAnchor.constraint(equalTo: cardView.bottomAnchor),
-            footerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            footerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            footerStackView.heightAnchor.constraint(equalToConstant: 58),
+            footerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.space12),
+            footerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.space12),
+            footerStackView.heightAnchor.constraint(equalToConstant: Constants.footerStackViewHeight),
+            footerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.space8),
+            
+            completeButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize),
+            completeButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize)
         ])
     }
     
     private func configureCompleteButton() {
-        switch completeButtonState {
-        case .hidden:
+        switch availableActionState {
+        case .complete:
+            completeButton.alpha = 1
+            completeButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        case .uncomplete:
+            completeButton.alpha = 0.3
+            completeButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
+        case .none:
             completeButton.isHidden = true
             
             return
-        case .complete:
-            completeButton.alpha = 0.3
-            completeButton.setImage(UIImage(resource: .roundDone), for: .normal)
-        case .uncomplete:
-            completeButton.alpha = 1
-            completeButton.setImage(UIImage(resource: .roundPlus), for: .normal)
         }
         
         completeButton.isHidden = false
     }
     
     @objc private func didTapCompleteButton() {
-        if completeButtonState == .hidden { return }
+        if availableActionState == .none { return }
 
-        let isCompleted = completeButtonState == .uncomplete
+        let isCompleted = availableActionState == .complete
         
         delegate?.trackerCollectionViewCell(self, didToggleCompleted: isCompleted)
     }
@@ -155,5 +161,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 private extension TrackerCollectionViewCell {
     enum Constants {
         static let cellReuseIdentifier = "TrackerCollectionViewCell"
+        
+        static let buttonSize: CGFloat = 34
+        static let cardViewHeight: CGFloat = 90
+        static let footerStackViewHeight: CGFloat = 50
     }
 }

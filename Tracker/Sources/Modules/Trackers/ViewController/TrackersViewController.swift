@@ -8,10 +8,13 @@
 import UIKit
 
 final class TrackersViewController: UIViewController, TrackersViewControllerProtocol {
+    
     // MARK: - Public properties
     var presenter: TrackersViewPresenterProtocol?
     
-    // MARK: - Private properties   
+    // MARK: - Private properties
+    private var trackersCollectionViewModel: TrackersCollectionViewModel = TrackersCollectionViewModel(sections: [])
+    
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
         
@@ -50,17 +53,26 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return textField
     }().forAutoLayout
     
+    private lazy var trackersCollectionView: UICollectionView = {
+        let collectionViewLayout = UICollectionViewFlowLayout()
+        
+        collectionViewLayout.minimumInteritemSpacing = 0
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
+        
+        collectionView.isHidden = true
+        collectionView.showsVerticalScrollIndicator = false
+        
+        return collectionView
+    }().forAutoLayout
+    
     private lazy var emptyStateView: EmptyStateView = {
         let emptyStateView = EmptyStateView(text: Constants.emptyStateText)
         
+        emptyStateView.isHidden = true
+        
         return emptyStateView
     }().forAutoLayout
-    
-    private lazy var emptyStateViewConstraints: [NSLayoutConstraint] = [
-        emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-        emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-        emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
-    ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,14 +82,15 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }
     
     // MARK: - Public methods
-    func showEmptyState() {
-        view.addSubview(emptyStateView)
+    func updateViewModel(_ viewModel: TrackersCollectionViewModel) {
+        trackersCollectionViewModel = viewModel
         
-        NSLayoutConstraint.activate(emptyStateViewConstraints)
+        trackersCollectionView.reloadData()
     }
     
-    func showTrackersList() {
-        
+    func setEmptyStateVisible(_ isVisible: Bool) {
+        emptyStateView.isHidden = !isVisible
+        trackersCollectionView.isHidden = isVisible
     }
     
     // MARK: - Private methods
@@ -85,11 +98,28 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         view.backgroundColor = .white
         
         configNavigationItems()
+        configureTrackersCollectionView()
 
         view.addSubview(titleLable)
         view.addSubview(searchTextField)
+        view.addSubview(emptyStateView)
+        view.addSubview(trackersCollectionView)
         
         setupConstraints()
+    }
+    
+    private func configureTrackersCollectionView() {
+        trackersCollectionView.dataSource = self
+        trackersCollectionView.delegate = self
+        
+        trackersCollectionView.register(
+            TrackerCollectionViewCell.self,
+            forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier)
+        
+        trackersCollectionView.register(
+            TrackerCollectionViewHeader.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: TrackerCollectionViewHeader.reuseIdentifier)
     }
     
     private func configNavigationItems() {
@@ -110,6 +140,15 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             searchTextField.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: Spacing.space8),
             searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            
+            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
+            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            
+            trackersCollectionView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: Spacing.space8),
+            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
+            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
     
@@ -145,6 +184,79 @@ extension TrackersViewController: TrackerFormViewControllerDelegate {
     func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
         presenter?.addTracker(tracker)
         vc.dismiss(animated: true)
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+extension TrackersViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        trackersCollectionViewModel.sections[safe: section]?.trackers.count ?? 0
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        trackersCollectionViewModel.sections.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
+            for: indexPath)
+        
+        guard let cell = cell as? TrackerCollectionViewCell,
+              let cellViewModel = trackersCollectionViewModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: cellViewModel)
+        
+        return cell
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        if (kind != UICollectionView.elementKindSectionHeader) {
+            return UICollectionReusableView()
+        }
+        
+        let headerView = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: TrackerCollectionViewHeader.reuseIdentifier,
+            for: indexPath)
+        
+        guard let headerView = headerView as? TrackerCollectionViewHeader else {
+            return UICollectionReusableView()
+        }
+        
+        headerView.configure(with: trackersCollectionViewModel.sections[safe: indexPath.section]?.name ?? "")
+        
+        return headerView
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension TrackersViewController: UICollectionViewDelegate {
+    
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        return CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: 148)
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
+        CGSize(width: collectionView.frame.width, height: 46)
     }
 }
 

@@ -15,6 +15,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     var presenter: TrackerFormViewPresenterProtocol?
     
     // MARK: - Private properties
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         

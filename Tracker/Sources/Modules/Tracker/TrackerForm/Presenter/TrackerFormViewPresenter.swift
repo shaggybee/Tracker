@@ -26,7 +26,9 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     
     private var isTrackerNameInvalid: Bool = false
     private var canSaveTracker: Bool  {
-        !isTrackerNameInvalid && !trackerName.isEmpty && !selectedDays.isEmpty
+        !isTrackerNameInvalid
+        && !trackerName.isEmpty
+        && (trackerType == .irregularEvent || trackerType == .habit && !selectedDays.isEmpty)
     }
     
     // MARK: - Initializers

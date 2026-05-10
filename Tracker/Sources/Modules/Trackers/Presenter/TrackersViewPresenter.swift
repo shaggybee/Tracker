@@ -5,7 +5,7 @@
 //  Created by Kislov Vadim on 09.05.2026.
 //
 
-import Foundation
+import UIKit
 
 final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     weak var view: TrackersViewControllerProtocol?
@@ -14,8 +14,12 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
     
+    var isAllCategoriesEmpty: Bool {
+        categories.isEmpty || categories.allSatisfy({ $0.trackers.isEmpty })
+    }
+    
     func viewDidLoad() {
-        view?.showEmptyState()
+        updateViewModel()
     }
     
     func addTracker(_ tracker: Tracker) {
@@ -28,10 +32,100 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         )
         
         categories[index] = updatedCategory
+        
+        updateViewModel()
     }
     
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
+        
+        updateViewModel()
+    }
+    
+    private func updateViewModel() {
+        if isAllCategoriesEmpty {
+            view?.updateViewModel(TrackersCollectionViewModel(sections: []))
+            view?.setEmptyStateVisible(true)
+            
+            return
+        }
+        
+        let sections: [TrackersSectionViewModel] = categories
+            .map { category in
+                let name = category.name
+                
+                let trackers = category.trackers
+                    .filter(shouldShow)
+                    .map(prepareViewModel)
+                
+                return TrackersSectionViewModel(
+                    name: name,
+                    trackers: trackers)
+            }
+            .filter { !$0.trackers.isEmpty }
+        
+        view?.updateViewModel(TrackersCollectionViewModel(sections: sections))
+        view?.setEmptyStateVisible(sections.isEmpty)
+    }
+    
+    private func shouldShow(tracker: Tracker) -> Bool {
+        let currentWeekday = Weekdays.getWeekday(for: selectedDate)
+        
+        // Если привычка и соответствует расписанию
+        if tracker.type == .habit && tracker.schedule.contains(currentWeekday) {
+            return true
+        }
+        
+        // Если нерегулярное событие
+        if tracker.type == .irregularEvent {
+            // Проверяем статус выполнения
+            guard let completionInfo = completedTrackers.first(where: { $0.trackerId == tracker.id }) else {
+                return true
+            }
+
+            // Выбрана дата соответствующая дате выполенения
+            if (Calendar.current.isDate(completionInfo.date, inSameDayAs: selectedDate)) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    private func prepareViewModel(for tracker: Tracker) -> TrackerViewModel {
+        return TrackerViewModel(
+            id: tracker.id,
+            name: tracker.name,
+            emoji: tracker.emoji,
+            // TODO в одном из следующих спринтов добавить передачу выбранного цвета (сейчас хардкод из фигмы)
+            color: UIColor(
+                red: 51.0 / 255.0,
+                green: 207.0 / 255.0,
+                blue: 105.0 / 255.0,
+                alpha: 1.0
+            ),
+            completedDaysCount: getCompletedDaysCount(for: tracker.id),
+            availableAction: getAvailableAction(for: tracker),
+        )
+    }
+    
+    private func getCompletedDaysCount(for trackerId: UUID) -> Int {
+        return completedTrackers.count { $0.trackerId == trackerId}
+    }
+    
+    private func getAvailableAction(for tracker: Tracker) -> TrackerAvailableAction {
+        let currentDate = Date()
+        
+        // Если выбранная дата в будущем, то у привычки нельзя изменить статус выполнения
+        if (Calendar.current.compare(selectedDate, to: currentDate, toGranularity: .day) == .orderedDescending) {
+            return .none
+        }
+        
+        let isCompleted = completedTrackers.contains {
+            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+        }
+        
+        return isCompleted ? .uncomplete : .complete
     }
 }
 

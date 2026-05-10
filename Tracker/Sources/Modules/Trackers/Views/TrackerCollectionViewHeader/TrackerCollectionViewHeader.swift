@@ -22,8 +22,8 @@ final class TrackerCollectionViewHeader: UICollectionReusableView {
     }().forAutoLayout
     
     // MARK: - Initializers
-    init() {
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         setElements()
     }
@@ -47,7 +47,7 @@ final class TrackerCollectionViewHeader: UICollectionReusableView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            headerLabel.topAnchor.constraint(equalTo: topAnchor),
+            headerLabel.topAnchor.constraint(equalTo: topAnchor, constant: Spacing.space16),
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.space12),
             headerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
