@@ -96,7 +96,7 @@ final class InputFieldView: UIView {
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            textField.heightAnchor.constraint(equalToConstant: 75)
+            textField.heightAnchor.constraint(equalToConstant: Constants.textFieldHeight)
         ])
     }
     
@@ -110,6 +110,13 @@ extension InputFieldView: UITextFieldDelegate {
         textField.resignFirstResponder()
         
         return true
+    }
+}
+
+// MARK: - Constants
+private extension InputFieldView {
+    enum Constants {
+        static let textFieldHeight: CGFloat = 75
     }
 }
 

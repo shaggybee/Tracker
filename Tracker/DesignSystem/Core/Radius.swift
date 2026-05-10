@@ -8,5 +8,6 @@
 import Foundation
 
 enum Radius {
+    static let size10: CGFloat = 10
     static let size16: CGFloat = 16
 }

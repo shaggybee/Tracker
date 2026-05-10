@@ -45,10 +45,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return label
     }().forAutoLayout
     
-    private lazy var searchTextField: UITextField = {
-        let textField = UITextField()
-        
-        textField.placeholder = "Поиск"
+    private lazy var searchBarView: SearchBarView = {
+        let textField = SearchBarView()
         
         return textField
     }().forAutoLayout
@@ -97,11 +95,15 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     private func setElements() {
         view.backgroundColor = .white
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
         configNavigationItems()
         configureTrackersCollectionView()
 
         view.addSubview(titleLable)
-        view.addSubview(searchTextField)
+        view.addSubview(searchBarView)
         view.addSubview(emptyStateView)
         view.addSubview(trackersCollectionView)
         
@@ -137,15 +139,15 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             titleLable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.separator),
             titleLable.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Spacing.space16),
             
-            searchTextField.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: Spacing.space8),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            searchBarView.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: Spacing.space8),
+            searchBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
+            searchBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             
-            trackersCollectionView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: Spacing.space8),
+            trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -161,6 +163,10 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         trackerTypeSelectionVC.delegate = self
         present(trackerTypeSelectionVC, animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 
