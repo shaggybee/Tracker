@@ -213,6 +213,7 @@ extension TrackersViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
+        cell.delegate = self
         cell.configure(with: cellViewModel)
         
         return cell
@@ -243,9 +244,7 @@ extension TrackersViewController: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegate
-extension TrackersViewController: UICollectionViewDelegate {
-    
-}
+extension TrackersViewController: UICollectionViewDelegate { }
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
@@ -254,7 +253,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: 148)
+        return CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: Constants.collectionViewCellHeight)
     }
     
     func collectionView(
@@ -262,13 +261,26 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
-        CGSize(width: collectionView.frame.width, height: 46)
+        CGSize(width: collectionView.frame.width, height: Constants.headerSectionHeight)
+    }
+}
+
+// MARK: - TrackerCollectionViewCellDelegate
+extension TrackersViewController: TrackerCollectionViewCellDelegate {
+    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
+        guard let indexPath = trackersCollectionView.indexPath(for: cell),
+              let trackerViewModel = trackersCollectionViewModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return }
+        
+        presenter?.setTrackerCompleted(isCompleted, for: trackerViewModel.id)
     }
 }
 
 // MARK: - Constants
 private extension TrackersViewController {
     enum Constants {
+        static let headerSectionHeight: CGFloat = 46
+        static let collectionViewCellHeight: CGFloat = 148
+        
         static let titleText = "Трекеры"
         static let emptyStateText = "Что будем отслеживать?"
     }

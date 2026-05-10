@@ -15,4 +15,5 @@ protocol TrackersViewPresenterProtocol {
     func viewDidLoad()
     func addTracker(_ tracker: Tracker)
     func setDate(_ selectedDate: Date)
+    func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID)
 }

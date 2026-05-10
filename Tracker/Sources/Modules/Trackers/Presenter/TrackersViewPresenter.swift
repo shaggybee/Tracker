@@ -8,6 +8,8 @@
 import UIKit
 
 final class TrackersViewPresenter: TrackersViewPresenterProtocol {
+    
+    // MARK: - Public properties
     weak var view: TrackersViewControllerProtocol?
     
     var categories: [TrackerCategory] = [TrackerCategory(name: Constants.defaultCategoryName, trackers: [])]
@@ -18,6 +20,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         categories.isEmpty || categories.allSatisfy({ $0.trackers.isEmpty })
     }
     
+    // MARK: - Public methods
     func viewDidLoad() {
         updateViewModel()
     }
@@ -42,6 +45,17 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         updateViewModel()
     }
     
+    func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
+        if isCompleted {
+            completedTrackers.append(TrackerRecord(trackerId: trackerId, date: selectedDate))
+        } else {
+            completedTrackers.removeAll { $0.trackerId == trackerId && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+        }
+        
+        updateViewModel()
+    }
+    
+    // MARK: - Private methods
     private func updateViewModel() {
         if isAllCategoriesEmpty {
             view?.updateViewModel(TrackersCollectionViewModel(sections: []))
@@ -71,25 +85,16 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     private func shouldShow(tracker: Tracker) -> Bool {
         let currentWeekday = Weekdays.getWeekday(for: selectedDate)
         
-        // Если привычка и соответствует расписанию
-        if tracker.type == .habit && tracker.schedule.contains(currentWeekday) {
+        if tracker.type == .habit {
+            return tracker.schedule.contains(currentWeekday)
+        }
+        
+        // Проверяем статус выполнения нерегулярного события
+        guard let completionInfo = completedTrackers.first(where: { $0.trackerId == tracker.id }) else {
             return true
         }
         
-        // Если нерегулярное событие
-        if tracker.type == .irregularEvent {
-            // Проверяем статус выполнения
-            guard let completionInfo = completedTrackers.first(where: { $0.trackerId == tracker.id }) else {
-                return true
-            }
-
-            // Выбрана дата соответствующая дате выполенения
-            if (Calendar.current.isDate(completionInfo.date, inSameDayAs: selectedDate)) {
-                return true
-            }
-        }
-        
-        return false
+        return Calendar.current.isDate(completionInfo.date, inSameDayAs: selectedDate)
     }
     
     private func prepareViewModel(for tracker: Tracker) -> TrackerViewModel {
@@ -114,21 +119,20 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     }
     
     private func getAvailableAction(for tracker: Tracker) -> TrackerAvailableAction {
-        let currentDate = Date()
-        
         // Если выбранная дата в будущем, то у привычки нельзя изменить статус выполнения
-        if (Calendar.current.compare(selectedDate, to: currentDate, toGranularity: .day) == .orderedDescending) {
+        if (Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) == .orderedDescending) {
             return .none
         }
         
         let isCompleted = completedTrackers.contains {
-            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
         }
         
         return isCompleted ? .uncomplete : .complete
     }
 }
 
+// MARK: - TrackersViewPresenter
 private extension TrackersViewPresenter {
     enum Constants {
         // TODO удалить в одном из следующих спринтов (после реализации категорий)
