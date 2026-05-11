@@ -15,6 +15,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     // MARK: - Private properties
     private var trackersCollectionViewModel: TrackersCollectionViewModel = TrackersCollectionViewModel(sections: [])
     
+    private var trackersDataSource: UICollectionViewDiffableDataSource<String, TrackerViewModel>!
+    
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
         
@@ -80,10 +82,17 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }
     
     // MARK: - Public methods
-    func updateViewModel(_ viewModel: TrackersCollectionViewModel) {
+    func apply(_ viewModel: TrackersCollectionViewModel) {
         trackersCollectionViewModel = viewModel
         
-        trackersCollectionView.reloadData()
+        var snapshot = NSDiffableDataSourceSnapshot<String, TrackerViewModel>()
+        
+        viewModel.sections.forEach { section in
+            snapshot.appendSections([section.name])
+            snapshot.appendItems(section.trackers, toSection: section.name)
+        }
+        
+        trackersDataSource.apply(snapshot, animatingDifferences: false)
     }
     
     func setEmptyStateVisible(_ isVisible: Bool) {
@@ -111,13 +120,17 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }
     
     private func configureTrackersCollectionView() {
-        trackersCollectionView.dataSource = self
-        trackersCollectionView.delegate = self
+        trackersDataSource = UICollectionViewDiffableDataSource(
+            collectionView: trackersCollectionView,
+            cellProvider: getCellViewProvider(collectionView:indexPath:viewModel:))
         
+        trackersDataSource.supplementaryViewProvider = getHeaderViewProvider
+        
+        trackersCollectionView.delegate = self
+    
         trackersCollectionView.register(
             TrackerCollectionViewCell.self,
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier)
-        
         trackersCollectionView.register(
             TrackerCollectionViewHeader.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -126,7 +139,6 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     
     private func configNavigationItems() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addTrackerButton)
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
         if #available(iOS 26.0, *) {
@@ -152,6 +164,51 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+    
+
+    
+    private func getCellViewProvider(
+        collectionView: UICollectionView,
+        indexPath: IndexPath,
+        viewModel: TrackerViewModel
+    ) -> UICollectionViewCell? {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
+            for: indexPath)
+        
+        guard let cell = cell as? TrackerCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        cell.prepareForReuse()
+        cell.delegate = self
+        cell.configure(with: viewModel)
+        
+        return cell
+    }
+    
+    private func getHeaderViewProvider(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        if (kind != UICollectionView.elementKindSectionHeader) {
+            return UICollectionReusableView()
+        }
+        
+        let headerView = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: TrackerCollectionViewHeader.reuseIdentifier,
+            for: indexPath)
+        
+        guard let headerView = headerView as? TrackerCollectionViewHeader else {
+            return UICollectionReusableView()
+        }
+        
+        headerView.configure(with: trackersCollectionViewModel.sections[safe: indexPath.section]?.name ?? "")
+        
+        return headerView
     }
     
     @objc private func didChangeDate(_ sender: UIDatePicker) {
@@ -190,56 +247,6 @@ extension TrackersViewController: TrackerFormViewControllerDelegate {
     func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
         presenter?.addTracker(tracker)
         vc.dismiss(animated: true)
-    }
-}
-
-// MARK: - UICollectionViewDataSource
-extension TrackersViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        trackersCollectionViewModel.sections[safe: section]?.trackers.count ?? 0
-    }
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        trackersCollectionViewModel.sections.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
-            for: indexPath)
-        
-        guard let cell = cell as? TrackerCollectionViewCell,
-              let cellViewModel = trackersCollectionViewModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else {
-            return UICollectionViewCell()
-        }
-        
-        cell.delegate = self
-        cell.configure(with: cellViewModel)
-        
-        return cell
-    }
-    
-    func collectionView(
-        _ collectionView: UICollectionView,
-        viewForSupplementaryElementOfKind kind: String,
-        at indexPath: IndexPath
-    ) -> UICollectionReusableView {
-        if (kind != UICollectionView.elementKindSectionHeader) {
-            return UICollectionReusableView()
-        }
-        
-        let headerView = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: TrackerCollectionViewHeader.reuseIdentifier,
-            for: indexPath)
-        
-        guard let headerView = headerView as? TrackerCollectionViewHeader else {
-            return UICollectionReusableView()
-        }
-        
-        headerView.configure(with: trackersCollectionViewModel.sections[safe: indexPath.section]?.name ?? "")
-        
-        return headerView
     }
 }
 

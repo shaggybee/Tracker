@@ -5,7 +5,7 @@
 //  Created by Kislov Vadim on 09.05.2026.
 //
 
-import UIKit
+import Foundation
 
 struct TrackersSectionViewModel {
     let name: String
@@ -16,11 +16,11 @@ struct TrackersCollectionViewModel {
     let sections: [TrackersSectionViewModel]
 }
 
-struct TrackerViewModel {
+struct TrackerViewModel: Hashable, Sendable {
     let id: UUID
     let name: String
     let emoji: String?
-    let color: UIColor
+    let colorHex: String
     let completedDaysCount: Int
     let availableAction: TrackerAvailableAction
 }

@@ -9,6 +9,6 @@ import Foundation
 
 protocol TrackersViewControllerProtocol: AnyObject {
     var presenter: TrackersViewPresenterProtocol? { get }
-    func updateViewModel(_ viewModel: TrackersCollectionViewModel)
+    func apply(_ viewModel: TrackersCollectionViewModel)
     func setEmptyStateVisible(_ isVisible: Bool)
 }

@@ -22,27 +22,25 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     
     // MARK: - Public methods
     func viewDidLoad() {
-        updateViewModel()
+        buildAndPresentTrackers()
     }
     
     func addTracker(_ tracker: Tracker) {
         guard let index = categories.firstIndex(where: { $0.name == Constants.defaultCategoryName }),
               let trackerCategory = categories[safe: index] else { return }
         
-        let updatedCategory = TrackerCategory(
+        categories[index] = TrackerCategory(
             name: trackerCategory.name,
             trackers: trackerCategory.trackers + [tracker]
         )
         
-        categories[index] = updatedCategory
-        
-        updateViewModel()
+        buildAndPresentTrackers()
     }
     
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
         
-        updateViewModel()
+        buildAndPresentTrackers()
     }
     
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
@@ -52,13 +50,13 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             completedTrackers.removeAll { $0.trackerId == trackerId && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
         }
         
-        updateViewModel()
+        buildAndPresentTrackers()
     }
     
     // MARK: - Private methods
-    private func updateViewModel() {
+    private func buildAndPresentTrackers() {
         if isAllCategoriesEmpty {
-            view?.updateViewModel(TrackersCollectionViewModel(sections: []))
+            view?.apply(TrackersCollectionViewModel(sections: []))
             view?.setEmptyStateVisible(true)
             
             return
@@ -78,7 +76,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             }
             .filter { !$0.trackers.isEmpty }
         
-        view?.updateViewModel(TrackersCollectionViewModel(sections: sections))
+        view?.apply(TrackersCollectionViewModel(sections: sections))
         view?.setEmptyStateVisible(sections.isEmpty)
     }
     
@@ -103,12 +101,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             name: tracker.name,
             emoji: tracker.emoji,
             // TODO в одном из следующих спринтов добавить передачу выбранного цвета (сейчас хардкод из фигмы)
-            color: UIColor(
-                red: 51.0 / 255.0,
-                green: 207.0 / 255.0,
-                blue: 105.0 / 255.0,
-                alpha: 1.0
-            ),
+            colorHex: "#33CF69",
             completedDaysCount: getCompletedDaysCount(for: tracker.id),
             availableAction: getAvailableAction(for: tracker),
         )
