@@ -169,7 +169,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     @objc private func didTapCancelButton(_ sender: UIButton) {
-        dismiss(animated: true)
+        view.window?.rootViewController?.dismiss(animated: true)
     }
     
     @objc private func dismissKeyboard() {

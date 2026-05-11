@@ -37,7 +37,15 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return datePicker
     }().forAutoLayout
     
-    private lazy var titleLable: UILabel = {
+    private lazy var headerStackView: UIStackView = {
+        let stackView = UIStackView()
+        
+        stackView.alignment = .center
+        
+        return stackView
+    }().forAutoLayout
+    
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         
         label.font = Font.bold34
@@ -107,11 +115,14 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
-        
-        configNavigationItems()
+
         configureTrackersCollectionView()
 
-        view.addSubview(titleLable)
+        headerStackView.addArrangedSubview(addTrackerButton)
+        headerStackView.addArrangedSubview(datePicker)
+        
+        view.addSubview(headerStackView)
+        view.addSubview(titleLabel)
         view.addSubview(searchBarView)
         view.addSubview(emptyStateView)
         view.addSubview(trackersCollectionView)
@@ -137,27 +148,25 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             withReuseIdentifier: TrackerCollectionViewHeader.reuseIdentifier)
     }
     
-    private func configNavigationItems() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addTrackerButton)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
-        
-        if #available(iOS 26.0, *) {
-            navigationItem.rightBarButtonItem?.hidesSharedBackground = true
-        }
-    }
-    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.separator),
-            titleLable.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Spacing.space16),
+            headerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space6),
+            headerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             
-            searchBarView.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: Spacing.space8),
+            addTrackerButton.heightAnchor.constraint(equalToConstant: Constants.addTrackerButtonSize),
+            addTrackerButton.widthAnchor.constraint(equalToConstant: Constants.addTrackerButtonSize),
+            
+            titleLabel.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: Spacing.separator),
+            titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Spacing.space16),
+            
+            searchBarView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space8),
             searchBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             searchBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            emptyStateView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
@@ -165,8 +174,6 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
-    
-
     
     private func getCellViewProvider(
         collectionView: UICollectionView,
@@ -230,15 +237,13 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
 // MARK: - TrackerTypeSelectionViewControllerDelegate
 extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
     func trackerTypeSelectionViewController(_ vc: TrackerTypeSelectionViewController, didSelect type: TrackerType) {
-        vc.dismiss(animated: true)
-        
         let trackerFormVC = TrackerFormViewController()
         let presenter = TrackerFormViewPresenter(trackerType: type)
         presenter.view = trackerFormVC
         trackerFormVC.delegate = self
         trackerFormVC.presenter = presenter
         
-        present(trackerFormVC, animated: true)
+        vc.present(trackerFormVC, animated: true)
     }
 }
 
@@ -246,7 +251,7 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
 extension TrackersViewController: TrackerFormViewControllerDelegate {
     func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
         presenter?.addTracker(tracker)
-        vc.dismiss(animated: true)
+        dismiss(animated: true)
     }
 }
 
@@ -260,7 +265,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: Constants.collectionViewCellHeight)
+        CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: Constants.collectionViewCellHeight)
     }
     
     func collectionView(
@@ -285,6 +290,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
 // MARK: - Constants
 private extension TrackersViewController {
     enum Constants {
+        static let addTrackerButtonSize: CGFloat = 42
         static let headerSectionHeight: CGFloat = 46
         static let collectionViewCellHeight: CGFloat = 148
         

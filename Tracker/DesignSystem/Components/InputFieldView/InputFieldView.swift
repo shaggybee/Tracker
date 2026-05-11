@@ -15,18 +15,19 @@ final class InputFieldView: UIView {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         
-        textField.layer.cornerRadius = Radius.size16
-        textField.backgroundColor = .background
         textField.clearButtonMode = .whileEditing
-        
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: Spacing.space16, height: 0))
-        textField.leftViewMode = .always
-        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: Spacing.space16, height: 0))
-        textField.rightViewMode = .unlessEditing
-        
         textField.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         
         return textField
+    }().forAutoLayout
+    
+    private lazy var textFieldWrapperView: UIView = {
+        let view = UIView()
+        
+        view.layer.cornerRadius = Radius.size16
+        view.backgroundColor = .background
+        
+        return view
     }().forAutoLayout
     
     private lazy var hintLabel: UILabel = {
@@ -46,6 +47,7 @@ final class InputFieldView: UIView {
         stackView.axis = .vertical
         stackView.spacing = Spacing.space8
         stackView.alignment = .fill
+        stackView.distribution = .fill
         
         return stackView
     }().forAutoLayout
@@ -81,7 +83,9 @@ final class InputFieldView: UIView {
     private func setElements() {
         textField.delegate = self
         
-        stackView.addArrangedSubview(textField)
+        textFieldWrapperView.addSubview(textField)
+        
+        stackView.addArrangedSubview(textFieldWrapperView)
         stackView.addArrangedSubview(hintLabel)
         
         addSubview(stackView)
@@ -91,6 +95,11 @@ final class InputFieldView: UIView {
     
     private func setConstraints() {
         NSLayoutConstraint.activate([
+            textField.topAnchor.constraint(equalTo: textFieldWrapperView.topAnchor),
+            textField.bottomAnchor.constraint(equalTo: textFieldWrapperView.bottomAnchor),
+            textField.leadingAnchor.constraint(equalTo: textFieldWrapperView.leadingAnchor, constant: Spacing.space16),
+            textField.trailingAnchor.constraint(equalTo: textFieldWrapperView.trailingAnchor, constant: -Spacing.space12),
+            
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),

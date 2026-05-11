@@ -89,7 +89,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Public methods
     func configure(with model: TrackerViewModel) {
         trackerNameLabel.text = model.name
-        countLabel.text = "\(String(model.completedDaysCount)) дней"
+        countLabel.text = model.completedDaysCount.formatRussianPlural(for: (one: "день", few: "дня", many: "дней"))
         cardView.backgroundColor = UIColor(hexString: model.colorHex)
         completeButton.backgroundColor = UIColor(hexString: model.colorHex)
         availableActionState = model.availableAction

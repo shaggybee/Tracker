@@ -17,7 +17,6 @@ struct Weekdays: OptionSet {
     static let thursday = Weekdays(rawValue: 1 << 4)
     static let friday = Weekdays(rawValue: 1 << 5)
     static let saturday = Weekdays(rawValue: 1 << 6)
-
 }
 
 extension Weekdays {
@@ -42,7 +41,17 @@ extension Weekdays {
         }
     }
     
-    var shortName: String {
+    var joinedShortNames: String {
+        let filteredDays = Weekdays.orderedDays.filter { self.contains($0) }
+        
+        return filteredDays.count == Weekdays.orderedDays.count
+            ? "Каждый день"
+            : filteredDays
+                .map { $0.shortName }
+                .joined(separator: ", ")
+    }
+    
+    private var shortName: String {
         switch self {
         case .monday:  "Пн"
         case .tuesday: "Вт"
@@ -53,15 +62,5 @@ extension Weekdays {
         case .sunday: "Вс"
         default: ""
         }
-    }
-    
-    var joinedShortNames: String {
-        let filteredDays = Weekdays.orderedDays.filter { self.contains($0) }
-        
-        return filteredDays.count == Weekdays.orderedDays.count
-            ? "Каждый день"
-            : filteredDays
-                .map { $0.shortName }
-                .joined(separator: ", ")
     }
 }

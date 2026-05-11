@@ -23,7 +23,9 @@ final class TabBarController: UITabBarController {
         tabBar.standardAppearance = appearance
         tabBar.tintColor = .ypBlue
         
-        addTopBorder()
+        if #unavailable(iOS 26.0) {
+            addTopBorder()
+        }
         
         let trackersViewPresenter = TrackersViewPresenter()
         let trackersViewController = TrackersViewController()
@@ -31,7 +33,6 @@ final class TabBarController: UITabBarController {
         trackersViewPresenter.view = trackersViewController
         trackersViewController.presenter = trackersViewPresenter
         
-        let trackersNavigationController = UINavigationController(rootViewController: trackersViewController)
         trackersViewController.tabBarItem = UITabBarItem(
             title: Constants.trackersBarItemTitle,
             image: UIImage(resource: .recordCircleFill),
@@ -43,7 +44,7 @@ final class TabBarController: UITabBarController {
             image: UIImage(resource: .hareFill),
             selectedImage: nil)
         
-        viewControllers = [trackersNavigationController, statisticsViewController]
+        viewControllers = [trackersViewController, statisticsViewController]
     }
     
     private func addTopBorder() {

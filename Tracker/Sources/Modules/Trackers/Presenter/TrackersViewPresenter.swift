@@ -129,6 +129,6 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
 private extension TrackersViewPresenter {
     enum Constants {
         // TODO удалить в одном из следующих спринтов (после реализации категорий)
-        static let defaultCategoryName = "Тестовая"
+        static let defaultCategoryName = "Домашний уют"
     }
 }
