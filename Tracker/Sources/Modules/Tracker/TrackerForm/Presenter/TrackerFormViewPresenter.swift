@@ -25,10 +25,19 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private(set) var trackerName: String = ""
     
     private var isTrackerNameInvalid: Bool = false
-    private var canSaveTracker: Bool  {
-        !isTrackerNameInvalid
-        && !trackerName.isEmpty
-        && (trackerType == .irregularEvent || trackerType == .habit && !selectedDays.isEmpty)
+    private var canSaveTracker: Bool {
+        guard !isTrackerNameInvalid,
+              !trackerName.isEmpty else {
+            return false
+        }
+
+        switch trackerType {
+        case .habit:
+            return !selectedDays.isEmpty
+
+        case .irregularEvent:
+            return true
+        }
     }
     
     // MARK: - Initializers
@@ -46,7 +55,6 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     func didChangeSelectedDays(_ selectedDays: Weekdays) {
         self.selectedDays = selectedDays
 
-        
         view?.setDescription(for: .schedule, with: selectedDays.joinedShortNames)
         view?.setSubmitButtonEnabled(canSaveTracker)
     }

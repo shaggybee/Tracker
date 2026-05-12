@@ -114,6 +114,7 @@ final class InputFieldView: UIView {
     }
 }
 
+// MARK: - UITextFieldDelegate
 extension InputFieldView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
