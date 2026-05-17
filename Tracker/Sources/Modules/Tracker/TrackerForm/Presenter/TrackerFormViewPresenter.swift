@@ -23,13 +23,16 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private var trackerType: TrackerType
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
+    private(set) var selectedEmoji: String?
+    private(set) var selectedColor: String?
     
     private var isTrackerNameInvalid: Bool = false
     private var canSaveTracker: Bool {
         guard !isTrackerNameInvalid,
-              !trackerName.isEmpty else {
-            return false
-        }
+              !trackerName.isEmpty,
+              let _ = selectedEmoji,
+              let _ = selectedColor
+        else { return false }
 
         switch trackerType {
         case .habit:
@@ -50,6 +53,8 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         isTrackerNameInvalid = false
         
         view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
     }
     
     func didChangeSelectedDays(_ selectedDays: Weekdays) {
@@ -77,14 +82,61 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         view?.setSubmitButtonEnabled(canSaveTracker)
     }
     
-    func getTrackerModel() -> Tracker {
-        Tracker(
+    func getTrackerModel() -> Tracker? {
+        guard let selectedColor, let selectedEmoji else {
+            return nil
+        }
+        
+        return Tracker(
             id: UUID(),
             name: trackerName,
-            colorHex: nil,
-            emoji: nil,
+            colorHex: selectedColor,
+            emoji: selectedEmoji,
             type: trackerType,
             schedule: selectedDays)
+    }
+    
+    func didChangeSelectedEmoji(_ emoji: String) {
+        selectedEmoji = emoji
+        
+        view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
+    }
+    
+    func didChangeSelectedColor(_ colorHex: String) {
+        selectedColor = colorHex
+        
+        view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
+    }
+    
+    // MARK: - Private methods
+    private func buildAndPresentTrackerAppearance() {
+        let emojiItems: [TrackerAppearanceItem] = TrackerConstants.emojis.map { emoji in
+            let model = TrackerEmojiCellViewModel(
+                emoji: emoji,
+                isSelected: emoji == selectedEmoji)
+            
+            return .emoji(model: model)
+        }
+        
+        
+        let colorItems: [TrackerAppearanceItem] = TrackerConstants.hexColors.map { colorHex in
+            let model = TrackerColorCellViewModel(
+                colorHex: colorHex,
+                isSelected: colorHex == selectedColor)
+            
+            return .color(model: model)
+        }
+        
+        let sections: [TrackerAppearanceSectionModel] = [
+            TrackerAppearanceSectionModel(name: "Emoji", items: emojiItems),
+            TrackerAppearanceSectionModel(name: "Цвет", items: colorItems)
+        ]
+        
+        view?.apply(TrackerAppearanceViewModel(sections: sections))
     }
 }
 

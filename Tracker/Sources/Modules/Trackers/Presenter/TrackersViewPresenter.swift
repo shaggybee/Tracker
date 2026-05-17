@@ -100,8 +100,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             id: tracker.id,
             name: tracker.name,
             emoji: tracker.emoji,
-            // TODO в одном из следующих спринтов добавить передачу выбранного цвета (сейчас хардкод из фигмы)
-            colorHex: "#33CF69",
+            colorHex: tracker.colorHex,
             completedDaysCount: getCompletedDaysCount(for: tracker.id),
             availableAction: getAvailableAction(for: tracker),
         )

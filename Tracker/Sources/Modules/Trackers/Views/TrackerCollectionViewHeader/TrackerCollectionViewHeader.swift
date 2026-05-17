@@ -50,6 +50,7 @@ final class TrackerCollectionViewHeader: UICollectionReusableView {
             headerLabel.topAnchor.constraint(equalTo: topAnchor, constant: Spacing.space16),
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.space12),
             headerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            headerLabel.heightAnchor.constraint(equalToConstant: Constants.headerLabelHeight)
         ])
     }
 }
@@ -57,6 +58,7 @@ final class TrackerCollectionViewHeader: UICollectionReusableView {
 // MARK: - Constants
 private extension TrackerCollectionViewHeader {
     enum Constants {
+        static let headerLabelHeight: CGFloat = 18
         static let headerReuseIdentifier = "TrackerCollectionViewHeader"
     }
 }

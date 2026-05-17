@@ -65,6 +65,12 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         let collectionViewLayout = UICollectionViewFlowLayout()
         
         collectionViewLayout.minimumInteritemSpacing = 0
+        collectionViewLayout.minimumLineSpacing = 0
+        collectionViewLayout.sectionInset = UIEdgeInsets(
+            top: Spacing.space12,
+            left: 0,
+            bottom: 0,
+            right: 0)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         
@@ -291,7 +297,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
 private extension TrackersViewController {
     enum Constants {
         static let addTrackerButtonSize: CGFloat = 42
-        static let headerSectionHeight: CGFloat = 46
+        static let headerSectionHeight: CGFloat = 34
         static let collectionViewCellHeight: CGFloat = 148
         
         static let titleText = "Трекеры"
