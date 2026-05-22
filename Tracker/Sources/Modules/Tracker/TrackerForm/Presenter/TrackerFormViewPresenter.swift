@@ -24,14 +24,14 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
     private(set) var selectedEmoji: String?
-    private(set) var selectedColor: String?
+    private(set) var selectedColorHex: String?
     
     private var isTrackerNameInvalid: Bool = false
     private var canSaveTracker: Bool {
         guard !isTrackerNameInvalid,
               !trackerName.isEmpty,
               let _ = selectedEmoji,
-              let _ = selectedColor
+              let _ = selectedColorHex
         else { return false }
 
         switch trackerType {
@@ -83,14 +83,14 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func getTrackerModel() -> Tracker? {
-        guard let selectedColor, let selectedEmoji else {
+        guard let selectedColorHex, let selectedEmoji else {
             return nil
         }
         
         return Tracker(
             id: UUID(),
             name: trackerName,
-            colorHex: selectedColor,
+            colorHex: selectedColorHex,
             emoji: selectedEmoji,
             type: trackerType,
             schedule: selectedDays)
@@ -105,7 +105,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func didChangeSelectedColor(_ colorHex: String) {
-        selectedColor = colorHex
+        selectedColorHex = colorHex
         
         view?.setSubmitButtonEnabled(canSaveTracker)
         
@@ -126,7 +126,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         let colorItems: [TrackerAppearanceItem] = TrackerConstants.hexColors.map { colorHex in
             let model = TrackerColorCellViewModel(
                 colorHex: colorHex,
-                isSelected: colorHex == selectedColor)
+                isSelected: colorHex == selectedColorHex)
             
             return .color(model: model)
         }
