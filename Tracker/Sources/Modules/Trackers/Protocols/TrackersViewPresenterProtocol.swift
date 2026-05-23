@@ -9,8 +9,6 @@ import Foundation
 
 protocol TrackersViewPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
-    var categories: [TrackerCategory] { get }
-    var completedTrackers: [TrackerRecord] { get }
     var selectedDate: Date { get }
     func viewDidLoad()
     func addTracker(_ tracker: Tracker)

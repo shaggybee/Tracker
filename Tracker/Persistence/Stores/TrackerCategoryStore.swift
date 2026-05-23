@@ -13,24 +13,28 @@ final class TrackerCategoryStore: TrackerCategoryStoreProtocol {
     convenience init() {
         self.init(context: PersistenceService.shared.context)
     }
-
+    
     init(context: NSManagedObjectContext) {
         self.context = context
     }
-    
-    func getCategory(by name: String) throws -> TrackerCategoryCoreData? {
-        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-        
-        return try context.fetch(fetchRequest).first
-    }
-    
+
     func createCategory(with name: String) throws {
-        guard try getCategory(by: name) == nil else { return }
+        if let _ = try getCategory(with: name) {
+            // TODO в следующем спринте обработать ситуацию когда категория с таким именем существует
+            return
+        }
         
         let category = TrackerCategoryCoreData(context: context)
         category.name = name
         
         try context.save()
+    }
+    
+    private func getCategory(with name: String) throws -> TrackerCategoryCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+        fetchRequest.fetchLimit = 1
+        
+        return try context.fetch(fetchRequest).first
     }
 }

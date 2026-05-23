@@ -8,6 +8,5 @@
 import Foundation
 
 protocol TrackerCategoryStoreProtocol {
-    func getCategory(by name: String) throws -> TrackerCategoryCoreData?
     func createCategory(with name: String) throws
 }

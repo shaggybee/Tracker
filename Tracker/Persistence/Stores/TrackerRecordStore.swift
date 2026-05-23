@@ -10,7 +10,6 @@ import CoreData
 final class TrackerRecordStore: TrackerRecordStoreProtocol {
     private let context: NSManagedObjectContext
     
-    private lazy var trackerStore = TrackerStore()
     private lazy var calendar = Calendar.current
     
     convenience init() {
@@ -22,35 +21,26 @@ final class TrackerRecordStore: TrackerRecordStoreProtocol {
     }
     
     func completeTracker(with trackerId: UUID, for date: Date) throws {
-        guard let tracker = try trackerStore.getTracker(by: trackerId) else {
+        guard let tracker = try getTracker(by: trackerId) else {
             // TODO подумать что делать
             return
         }
         
-        let completion = TrackerRecordCoreData(context: context)
+        let trackerRecord = TrackerRecordCoreData(context: context)
         
-        completion.trackerId = trackerId
-        completion.date = date
-        completion.tracker = tracker
+        trackerRecord.trackerId = trackerId
+        trackerRecord.date = date
+        trackerRecord.tracker = tracker
         
         try context.save()
     }
     
     func uncompleteTracker(with trackerId: UUID, for date: Date) throws {
-        let trackerRecordRequest = TrackerRecordCoreData.fetchRequest()
-        
-        let startOfDate = calendar.startOfDay(for: date)
-        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+        guard let fetchRequest = makeCompletionFetchRequest(trackerId: trackerId, for: date) else {
             return
         }
         
-        trackerRecordRequest.predicate = NSPredicate(
-            format: "trackerId == %@ AND date >= %@ AND date < %@",
-            trackerId as CVarArg,
-            startOfDate as CVarArg,
-            nextDay as CVarArg)
-        
-        guard let trackerRecord = try context.fetch(trackerRecordRequest).first else {
+        guard let trackerRecord = try context.fetch(fetchRequest).first else {
             // TODO подумать что делать
             return
         }
@@ -58,5 +48,44 @@ final class TrackerRecordStore: TrackerRecordStoreProtocol {
         context.delete(trackerRecord)
         
         try context.save()
+    }
+    
+    func getCompletionsCount(for trackerId: UUID) throws -> Int {
+        let tracker = try getTracker(by: trackerId)
+        
+        return tracker?.completions?.count ?? 0
+    }
+    
+    func checkCompletion(with trackerId: UUID, for date: Date) throws -> Bool? {
+        guard let fetchRequest = makeCompletionFetchRequest(trackerId: trackerId, for: date) else {
+            return nil
+        }
+
+        return try context.fetch(fetchRequest).first != nil
+    }
+    
+    private func makeCompletionFetchRequest(trackerId: UUID, for date: Date) -> NSFetchRequest<TrackerRecordCoreData>? {
+        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        
+        let startOfDate = calendar.startOfDay(for: date)
+        
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+            return nil
+        }
+        
+        fetchRequest.predicate = NSPredicate(
+            format: "trackerId == %@ AND date >= %@ AND date < %@",
+            trackerId as CVarArg,
+            startOfDate as CVarArg,
+            nextDay as CVarArg)
+        
+        return fetchRequest
+    }
+    
+    private func getTracker(by trackerId: UUID) throws -> TrackerCoreData? {
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        
+        return try context.fetch(fetchRequest).first
     }
 }

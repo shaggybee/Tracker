@@ -12,115 +12,99 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     // MARK: - Public properties
     weak var view: TrackersViewControllerProtocol?
     
-    var categories: [TrackerCategory] = [TrackerCategory(name: Constants.defaultCategoryName, trackers: [])]
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
     
-    var isAllCategoriesEmpty: Bool {
-        categories.isEmpty || categories.allSatisfy({ $0.trackers.isEmpty })
-    }
+    private lazy var trackerRecordStore = TrackerRecordStore()
+    private lazy var trackerCategoryStore = TrackerCategoryStore()
+    private lazy var trackerStore = TrackerStore()
     
     // MARK: - Public methods
     func viewDidLoad() {
-        buildAndPresentTrackers()
+        trackerStore.delegate = self
+        
+        // TODO подумать над try?
+        try? trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
     }
     
     func addTracker(_ tracker: Tracker) {
-        guard let index = categories.firstIndex(where: { $0.name == Constants.defaultCategoryName }),
-              let trackerCategory = categories[safe: index] else { return }
+        // TODO подумать над try?
         
-        categories[index] = TrackerCategory(
-            name: trackerCategory.name,
-            trackers: trackerCategory.trackers + [tracker]
-        )
-        
-        buildAndPresentTrackers()
+        // TODO временное решение, удалить в одном из следующих спринтов (после реализации категорий)
+        try? trackerCategoryStore.createCategory(with: Constants.defaultCategoryName)
+        try? trackerStore.addTracker(tracker, for: Constants.defaultCategoryName)
     }
     
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
         
-        buildAndPresentTrackers()
+        try? trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
     }
     
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
+        // TODO подумать над try?
         if isCompleted {
-            completedTrackers.append(TrackerRecord(trackerId: trackerId, date: selectedDate))
+            try? trackerRecordStore.completeTracker(with: trackerId, for: selectedDate)
         } else {
-            completedTrackers.removeAll { $0.trackerId == trackerId && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+            try? trackerRecordStore.uncompleteTracker(with: trackerId, for: selectedDate)
         }
-        
-        buildAndPresentTrackers()
     }
     
     // MARK: - Private methods
-    private func buildAndPresentTrackers() {
-        if isAllCategoriesEmpty {
+    private func buildAndPresent(trackerSections: [TrackerCategory]) {
+        if trackerSections.isEmpty || trackerSections.allSatisfy({ $0.trackers.isEmpty }) {
             view?.apply(TrackersCollectionViewModel(sections: []))
             view?.setEmptyStateVisible(true)
             
             return
         }
         
-        let sections: [TrackersSectionViewModel] = categories
-            .map { category in
-                let name = category.name
+        let sections: [TrackersSectionViewModel] = trackerSections
+            .map { trackerSection in
+                let name = trackerSection.name
                 
-                let trackers = category.trackers
-                    .filter(shouldShow)
+                let trackers = trackerSection.trackers
                     .map(prepareViewModel)
                 
                 return TrackersSectionViewModel(
                     name: name,
                     trackers: trackers)
             }
-            .filter { !$0.trackers.isEmpty }
         
         view?.apply(TrackersCollectionViewModel(sections: sections))
         view?.setEmptyStateVisible(sections.isEmpty)
     }
     
-    private func shouldShow(tracker: Tracker) -> Bool {
-        let currentWeekday = Weekdays.getWeekday(for: selectedDate)
-        
-        if tracker.type == .habit {
-            return tracker.schedule.contains(currentWeekday)
-        }
-        
-        // Проверяем статус выполнения нерегулярного события
-        guard let completionInfo = completedTrackers.first(where: { $0.trackerId == tracker.id }) else {
-            return true
-        }
-        
-        return Calendar.current.isDate(completionInfo.date, inSameDayAs: selectedDate)
-    }
-    
     private func prepareViewModel(for tracker: Tracker) -> TrackerViewModel {
+        let completedDaysCount: Int? = try? trackerRecordStore.getCompletionsCount(for: tracker.id)
+        
         return TrackerViewModel(
             id: tracker.id,
             name: tracker.name,
             emoji: tracker.emoji,
             colorHex: tracker.colorHex,
-            completedDaysCount: getCompletedDaysCount(for: tracker.id),
-            availableAction: getAvailableAction(for: tracker),
+            completedDaysCount: completedDaysCount ?? 0,
+            availableAction: getAvailableAction(for: tracker.id),
         )
     }
-    
-    private func getCompletedDaysCount(for trackerId: UUID) -> Int {
-        return completedTrackers.count { $0.trackerId == trackerId}
-    }
-    
-    private func getAvailableAction(for tracker: Tracker) -> TrackerAvailableAction {
+
+    private func getAvailableAction(for trackerId: UUID) -> TrackerAvailableAction {
         // Если выбранная дата в будущем, то у привычки нельзя изменить статус выполнения
         if (Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) == .orderedDescending) {
             return .none
         }
         
-        let isCompleted = completedTrackers.contains {
-            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+        guard let isCompleted = try? trackerRecordStore.checkCompletion(with: trackerId, for: selectedDate) else {
+            return .none
         }
         
         return isCompleted ? .uncomplete : .complete
+    }
+}
+
+extension TrackersViewPresenter: TrackerStoreDelegate {
+    func trackerStore(_ store: TrackerStore, didUpdateTrackersSections trackerSections: [TrackerCategory]) {
+        buildAndPresent(trackerSections: trackerSections)
     }
 }
 

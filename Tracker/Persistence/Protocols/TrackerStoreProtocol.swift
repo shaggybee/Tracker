@@ -8,8 +8,6 @@
 import Foundation
 
 protocol TrackerStoreProtocol {
-    func fetchGroupedTrackers(for trackerQuery: TrackerQuery) throws -> [TrackerCategory]
-    func addTracker(tracker: Tracker, for category: String)
-    func getTracker(by trackerId: UUID) throws -> TrackerCoreData?
-    func getTrackerCompletionstCount(for trackerId: UUID) throws -> Int
+    func loadTrackers(for trackerQuery: TrackerQuery) throws
+    func addTracker(_ tracker: Tracker, for categoryName: String) throws
 }
