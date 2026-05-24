@@ -52,7 +52,7 @@ final class TrackerEmojiViewCell: UICollectionViewCell {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             emojiLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            emojiLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 }

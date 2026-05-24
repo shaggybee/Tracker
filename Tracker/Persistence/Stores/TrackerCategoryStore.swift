@@ -8,8 +8,10 @@
 import CoreData
 
 final class TrackerCategoryStore: TrackerCategoryStoreProtocol {
+    // MARK: - Private properties
     private let context: NSManagedObjectContext
     
+    // MARK: - Initializers
     convenience init() {
         self.init(context: PersistenceService.shared.context)
     }
@@ -17,7 +19,8 @@ final class TrackerCategoryStore: TrackerCategoryStoreProtocol {
     init(context: NSManagedObjectContext) {
         self.context = context
     }
-
+    
+    // MARK: - Public methods
     func createCategory(with name: String) throws {
         if let _ = try getCategory(with: name) {
             // TODO в следующем спринте обработать ситуацию когда категория с таким именем существует
@@ -30,6 +33,7 @@ final class TrackerCategoryStore: TrackerCategoryStoreProtocol {
         try context.save()
     }
     
+    // MARK: - Private methods
     private func getCategory(with name: String) throws -> TrackerCategoryCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "name == %@", name)

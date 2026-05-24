@@ -11,7 +11,6 @@ protocol TrackersViewPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var selectedDate: Date { get }
     func viewDidLoad()
-    func addTracker(_ tracker: Tracker)
     func setDate(_ selectedDate: Date)
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID)
 }

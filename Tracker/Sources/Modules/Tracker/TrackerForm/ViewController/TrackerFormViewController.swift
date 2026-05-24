@@ -10,14 +10,12 @@ import UIKit
 final class TrackerFormViewController: UIViewController, TrackerFormViewControllerProtocol {
     
     // MARK: - Public properties
-    weak var delegate: TrackerFormViewControllerDelegate?
-    
-    private var trackerAppearanceViewModel: TrackerAppearanceViewModel = TrackerAppearanceViewModel(sections: [])
-    private var trackerAppearanceDataSource: UICollectionViewDiffableDataSource<String, TrackerAppearanceItem>!
-    
     var presenter: TrackerFormViewPresenterProtocol?
     
     // MARK: - Private properties
+    private var trackerAppearanceViewModel: TrackerAppearanceViewModel = TrackerAppearanceViewModel(sections: [])
+    private var trackerAppearanceDataSource: UICollectionViewDiffableDataSource<String, TrackerAppearanceItem>!
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         
@@ -308,9 +306,9 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     @objc private func didTapSubmitButton(_ sender: UIButton) {
-        guard let tracker = presenter?.getTrackerModel() else { return }
+        presenter?.createTracker()
         
-        delegate?.trackerFormViewController(self, didCreateTracker: tracker)
+        view.window?.rootViewController?.dismiss(animated: true)
     }
     
     @objc private func didTapCancelButton(_ sender: UIButton) {

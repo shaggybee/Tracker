@@ -246,18 +246,9 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
         let trackerFormVC = TrackerFormViewController()
         let presenter = TrackerFormViewPresenter(trackerType: type)
         presenter.view = trackerFormVC
-        trackerFormVC.delegate = self
         trackerFormVC.presenter = presenter
         
         vc.present(trackerFormVC, animated: true)
-    }
-}
-
-// MARK: - TrackerFormViewControllerDelegate
-extension TrackersViewController: TrackerFormViewControllerDelegate {
-    func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
-        presenter?.addTracker(tracker)
-        dismiss(animated: true)
     }
 }
 

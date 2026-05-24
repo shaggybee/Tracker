@@ -8,6 +8,6 @@
 import Foundation
 
 protocol TrackerStoreProtocol {
-    func loadTrackers(for trackerQuery: TrackerQuery) throws
-    func addTracker(_ tracker: Tracker, for categoryName: String) throws
+    func loadTrackers(for trackerQuery: TrackerQuery)
+    func addTracker(_ tracker: Tracker, for categoryName: String)
 }

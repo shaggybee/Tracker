@@ -69,6 +69,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         
         label.textColor = .ypBlack
         label.font = Font.medium16
+        label.textAlignment = .center
         
         return label
     }().forAutoLayout

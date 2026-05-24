@@ -37,11 +37,14 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         switch trackerType {
         case .habit:
             return !selectedDays.isEmpty
-
         case .irregularEvent:
             return true
         }
     }
+    
+    private lazy var trackerCategoryStore = TrackerCategoryStore()
+    private lazy var trackerStore = TrackerStore()
+    private lazy var logger = AppLogger.shared
     
     // MARK: - Initializers
     init(trackerType: TrackerType) {
@@ -59,7 +62,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     
     func didChangeSelectedDays(_ selectedDays: Weekdays) {
         self.selectedDays = selectedDays
-
+        
         view?.setDescription(for: .schedule, with: selectedDays.joinedShortNames)
         view?.setSubmitButtonEnabled(canSaveTracker)
     }
@@ -112,6 +115,23 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         buildAndPresentTrackerAppearance()
     }
     
+    func createTracker() {
+        guard let tracker = getTrackerModel() else {
+            return
+        }
+        
+        // TODO временное решение, удалить в одном из следующих спринтов (после реализации категорий)
+        // И перенести обработку ошибок в соответствующие методы trackerCategoryStore
+        do {
+            try trackerCategoryStore.createCategory(with: Constants.defaultCategoryName)
+        } catch {
+            logger.error("[TrackerFormViewPresenter.createTracker] Failed to save category with name \(Constants.defaultCategoryName). Error: \(error.localizedDescription)")
+            return
+        }
+        
+        trackerStore.addTracker(tracker, for: Constants.defaultCategoryName)
+    }
+    
     // MARK: - Private methods
     private func buildAndPresentTrackerAppearance() {
         let emojiItems: [TrackerAppearanceItem] = TrackerConstants.emojis.map { emoji in
@@ -148,5 +168,8 @@ private extension TrackerFormViewPresenter {
         static let newHabitTitle = "Новая привычка"
         static let newIrregularEventTitle = "Новое нерегулярное событие"
         static let trackerNameError = "Ограничение \(trackerNameMaxLength) символов"
+        
+        // TODO удалить в одном из следующих спринтов (после реализации категорий)
+        static let defaultCategoryName = "Домашний уют"
     }
 }

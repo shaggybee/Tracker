@@ -19,4 +19,5 @@ protocol TrackerFormViewPresenterProtocol {
     func didChangeSelectedEmoji(_ emoji: String)
     func didChangeSelectedColor(_ colorHex: String)
     func getTrackerModel() -> Tracker?
+    func createTracker()
 }

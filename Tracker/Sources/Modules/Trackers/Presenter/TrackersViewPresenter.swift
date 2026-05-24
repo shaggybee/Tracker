@@ -16,37 +16,26 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     var selectedDate: Date = Date()
     
     private lazy var trackerRecordStore = TrackerRecordStore()
-    private lazy var trackerCategoryStore = TrackerCategoryStore()
     private lazy var trackerStore = TrackerStore()
     
     // MARK: - Public methods
     func viewDidLoad() {
         trackerStore.delegate = self
         
-        // TODO подумать над try?
-        try? trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
-    }
-    
-    func addTracker(_ tracker: Tracker) {
-        // TODO подумать над try?
-        
-        // TODO временное решение, удалить в одном из следующих спринтов (после реализации категорий)
-        try? trackerCategoryStore.createCategory(with: Constants.defaultCategoryName)
-        try? trackerStore.addTracker(tracker, for: Constants.defaultCategoryName)
+        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
     }
     
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
         
-        try? trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
+        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
     }
     
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
-        // TODO подумать над try?
         if isCompleted {
-            try? trackerRecordStore.completeTracker(with: trackerId, for: selectedDate)
+            trackerRecordStore.completeTracker(with: trackerId, for: selectedDate)
         } else {
-            try? trackerRecordStore.uncompleteTracker(with: trackerId, for: selectedDate)
+            trackerRecordStore.uncompleteTracker(with: trackerId, for: selectedDate)
         }
     }
     
@@ -76,14 +65,14 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     }
     
     private func prepareViewModel(for tracker: Tracker) -> TrackerViewModel {
-        let completedDaysCount: Int? = try? trackerRecordStore.getCompletionsCount(for: tracker.id)
+        let completedDaysCount: Int = trackerRecordStore.getCompletionsCount(for: tracker.id)
         
         return TrackerViewModel(
             id: tracker.id,
             name: tracker.name,
             emoji: tracker.emoji,
             colorHex: tracker.colorHex,
-            completedDaysCount: completedDaysCount ?? 0,
+            completedDaysCount: completedDaysCount,
             availableAction: getAvailableAction(for: tracker.id),
         )
     }
@@ -94,7 +83,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             return .none
         }
         
-        guard let isCompleted = try? trackerRecordStore.checkCompletion(with: trackerId, for: selectedDate) else {
+        guard let isCompleted = trackerRecordStore.checkCompletion(with: trackerId, for: selectedDate) else {
             return .none
         }
         
@@ -102,16 +91,10 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     }
 }
 
+// MARK: - TrackerStoreDelegate
 extension TrackersViewPresenter: TrackerStoreDelegate {
     func trackerStore(_ store: TrackerStore, didUpdateTrackersSections trackerSections: [TrackerCategory]) {
         buildAndPresent(trackerSections: trackerSections)
     }
 }
 
-// MARK: - TrackersViewPresenter
-private extension TrackersViewPresenter {
-    enum Constants {
-        // TODO удалить в одном из следующих спринтов (после реализации категорий)
-        static let defaultCategoryName = "Домашний уют"
-    }
-}

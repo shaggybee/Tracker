@@ -8,14 +8,17 @@
 import CoreData
 
 final class TrackerStore: NSObject, TrackerStoreProtocol {
+    // MARK: - Public properties
     weak var delegate: TrackerStoreDelegate?
     
+    // MARK: - Private properties
     private let context: NSManagedObjectContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
     
     private lazy var calendar = Calendar.current
+    private lazy var logger = AppLogger.shared
     
-    // MARK: - Inits
+    // MARK: - Initializers
     convenience override init() {
         self.init(context: PersistenceService.shared.context)
     }
@@ -27,28 +30,38 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     }
     
     // MARK: - Public methods
-    func loadTrackers(for trackerQuery: TrackerQuery) throws {
+    func loadTrackers(for trackerQuery: TrackerQuery) {
         buildFetchedResultsController(for: trackerQuery)
         
         guard let fetchedResultsController else { return }
         
-        try fetchedResultsController.performFetch()
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            logger.error("[TrackerStore.loadTrackers] Failed to load trackers. Error: \(error.localizedDescription)")
+            
+            return
+        }
         
         let sections = transformResultsControllerSections()
         
         delegate?.trackerStore(self, didUpdateTrackersSections: sections)
     }
     
-    func addTracker(_ tracker: Tracker, for categoryName: String) throws {
-        guard let category = try findCategory(by: categoryName) else {
-            return
+    func addTracker(_ tracker: Tracker, for categoryName: String) {
+        do {
+            guard let category = try findCategory(by: categoryName) else {
+                return
+            }
+            
+            let newTracker = prepareTrackerCoreData(from: tracker, for: context)
+            
+            category.addToTrackers(newTracker)
+            
+            try context.save()
+        } catch {
+            logger.error("[TrackerStore.addTracker] Failed to add tracker. Error: \(error.localizedDescription)")
         }
-        
-        let newTracker = prepareTrackerCoreData(from: tracker, for: context)
-        
-        category.addToTrackers(newTracker)
-        
-        try context.save()
     }
     
     // MARK: - Private methods
@@ -79,11 +92,12 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     private func getTrackerFetchRequest(for trackerQuery: TrackerQuery) -> NSFetchRequest<TrackerCoreData>? {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
-            NSSortDescriptor(keyPath: \TrackerCoreData.category?.name, ascending: true)
+            NSSortDescriptor(keyPath: \TrackerCoreData.category?.name, ascending: true),
+            NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)
         ]
         
         // Фильтруем события по следующему принципу:
-        // тип "привычка" - возвращаем, если день недели (текущая выбранная дана) включен в расписание
+        // тип "привычка" - возвращаем, если день недели (текущая выбранная дана) включен в расписание;
         // тип "нерегулярное событие" - возвращаем, если событие не выполнено или было выполнено и дата
         // выполнения соответствует текущей
         

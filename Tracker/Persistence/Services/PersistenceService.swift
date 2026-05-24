@@ -7,34 +7,24 @@
 
 import CoreData
 
-final class PersistenceService: PersistenceServiceProtocol {
+final class PersistenceService {
     static let shared = PersistenceService()
     
+    // MARK: - Public properties
+    lazy var context: NSManagedObjectContext = container.viewContext
     lazy var container: NSPersistentContainer = {
         let container = NSPersistentContainer(name: Constants.containerName)
         
         container.loadPersistentStores(completionHandler: { _, error in
             if let error = error as NSError? {
-                print("Load Persistent Store failed: \(error), \(error.userInfo)")
+                assertionFailure("Load Persistent Store failed \(error), \(error.userInfo)")
             }
         })
         return container
     }()
-    
-    lazy var context: NSManagedObjectContext = container.viewContext
-    
-    func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("Error saving context: \(error.localizedDescription)")
-                context.rollback()
-            }
-        }
-    }
 }
 
+// MARK: - Constants
 private extension PersistenceService {
     enum Constants {
         static let containerName: String = "Tracker"
