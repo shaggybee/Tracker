@@ -8,7 +8,7 @@
 import Foundation
 
 struct Weekdays: OptionSet {
-    let rawValue: Int8
+    let rawValue: Int16
     
     static let sunday = Weekdays(rawValue: 1 << 0)
     static let monday = Weekdays(rawValue: 1 << 1)

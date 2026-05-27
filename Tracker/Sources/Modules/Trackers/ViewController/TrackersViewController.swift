@@ -65,6 +65,12 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         let collectionViewLayout = UICollectionViewFlowLayout()
         
         collectionViewLayout.minimumInteritemSpacing = 0
+        collectionViewLayout.minimumLineSpacing = 0
+        collectionViewLayout.sectionInset = UIEdgeInsets(
+            top: Spacing.space12,
+            left: 0,
+            bottom: 0,
+            right: 0)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         
@@ -188,7 +194,6 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             return UICollectionViewCell()
         }
         
-        cell.prepareForReuse()
         cell.delegate = self
         cell.configure(with: viewModel)
         
@@ -240,18 +245,9 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
         let trackerFormVC = TrackerFormViewController()
         let presenter = TrackerFormViewPresenter(trackerType: type)
         presenter.view = trackerFormVC
-        trackerFormVC.delegate = self
         trackerFormVC.presenter = presenter
         
         vc.present(trackerFormVC, animated: true)
-    }
-}
-
-// MARK: - TrackerFormViewControllerDelegate
-extension TrackersViewController: TrackerFormViewControllerDelegate {
-    func trackerFormViewController(_ vc: TrackerFormViewController, didCreateTracker tracker: Tracker) {
-        presenter?.addTracker(tracker)
-        dismiss(animated: true)
     }
 }
 
@@ -291,7 +287,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
 private extension TrackersViewController {
     enum Constants {
         static let addTrackerButtonSize: CGFloat = 42
-        static let headerSectionHeight: CGFloat = 46
+        static let headerSectionHeight: CGFloat = 34
         static let collectionViewCellHeight: CGFloat = 148
         
         static let titleText = "Трекеры"

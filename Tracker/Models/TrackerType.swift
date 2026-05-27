@@ -5,7 +5,8 @@
 //  Created by Kislov Vadim on 05.05.2026.
 //
 
-enum TrackerType {
+enum TrackerType: String {
     case habit
     case irregularEvent
 }
+

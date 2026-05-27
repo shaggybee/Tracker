@@ -64,6 +64,25 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return button
     }().forAutoLayout
     
+    private lazy var emojiLabel: UILabel = {
+        let label = UILabel()
+        
+        label.textColor = .ypBlack
+        label.font = Font.medium16
+        label.textAlignment = .center
+        
+        return label
+    }().forAutoLayout
+    
+    private lazy var emojiContainerView: UIView = {
+        let view = UIView()
+        
+        view.layer.cornerRadius = Constants.emojiWrapperSize / 2
+        view.clipsToBounds = true
+        
+        return view
+    }().forAutoLayout
+    
     private lazy var footerStackView: UIStackView = {
         let stack = UIStackView()
         
@@ -88,17 +107,25 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Public methods
     func configure(with model: TrackerViewModel) {
+        let color = UIColor(hexString: model.colorHex)
+        
         trackerNameLabel.text = model.name
         countLabel.text = model.completedDaysCount.formatRussianPlural(for: (one: "день", few: "дня", many: "дней"))
-        cardView.backgroundColor = UIColor(hexString: model.colorHex)
-        completeButton.backgroundColor = UIColor(hexString: model.colorHex)
+        cardView.backgroundColor = color
+        completeButton.backgroundColor = color
         availableActionState = model.availableAction
+        
+        emojiLabel.text = model.emoji
+        emojiContainerView.backgroundColor = .white.withAlphaComponent(0.3)
     }
     
     // MARK: - Private methods
     private func setElements() {
         configureCompleteButton()
         
+        emojiContainerView.addSubview(emojiLabel)
+        
+        cardView.addSubview(emojiContainerView)
         cardView.addSubview(trackerNameLabel)
         footerStackView.addArrangedSubview(countLabel)
         footerStackView.addArrangedSubview(completeButton)
@@ -115,6 +142,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cardView.heightAnchor.constraint(equalToConstant: Constants.cardViewHeight),
+            
+            emojiContainerView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
+            emojiContainerView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Spacing.space12),
+            emojiContainerView.widthAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
+            emojiContainerView.heightAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
+            
+            emojiLabel.centerXAnchor.constraint(equalTo: emojiContainerView.centerXAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: emojiContainerView.centerYAnchor),
             
             trackerNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
             trackerNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Spacing.space12),
@@ -162,6 +197,7 @@ private extension TrackerCollectionViewCell {
     enum Constants {
         static let cellReuseIdentifier = "TrackerCollectionViewCell"
         
+        static let emojiWrapperSize: CGFloat = 24
         static let buttonSize: CGFloat = 34
         static let cardViewHeight: CGFloat = 90
         static let footerStackViewHeight: CGFloat = 50

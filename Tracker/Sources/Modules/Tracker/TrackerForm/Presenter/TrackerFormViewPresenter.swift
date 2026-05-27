@@ -23,22 +23,28 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private var trackerType: TrackerType
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
+    private(set) var selectedEmoji: String?
+    private(set) var selectedColorHex: String?
     
     private var isTrackerNameInvalid: Bool = false
     private var canSaveTracker: Bool {
         guard !isTrackerNameInvalid,
-              !trackerName.isEmpty else {
-            return false
-        }
+              !trackerName.isEmpty,
+              let _ = selectedEmoji,
+              let _ = selectedColorHex
+        else { return false }
 
         switch trackerType {
         case .habit:
             return !selectedDays.isEmpty
-
         case .irregularEvent:
             return true
         }
     }
+    
+    private lazy var trackerCategoryStore = TrackerCategoryStore()
+    private lazy var trackerStore = TrackerStore()
+    private lazy var logger = AppLogger.shared
     
     // MARK: - Initializers
     init(trackerType: TrackerType) {
@@ -50,11 +56,13 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         isTrackerNameInvalid = false
         
         view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
     }
     
     func didChangeSelectedDays(_ selectedDays: Weekdays) {
         self.selectedDays = selectedDays
-
+        
         view?.setDescription(for: .schedule, with: selectedDays.joinedShortNames)
         view?.setSubmitButtonEnabled(canSaveTracker)
     }
@@ -77,14 +85,78 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         view?.setSubmitButtonEnabled(canSaveTracker)
     }
     
-    func getTrackerModel() -> Tracker {
-        Tracker(
+    func getTrackerModel() -> Tracker? {
+        guard let selectedColorHex, let selectedEmoji else {
+            return nil
+        }
+        
+        return Tracker(
             id: UUID(),
             name: trackerName,
-            colorHex: nil,
-            emoji: nil,
+            colorHex: selectedColorHex,
+            emoji: selectedEmoji,
             type: trackerType,
             schedule: selectedDays)
+    }
+    
+    func didChangeSelectedEmoji(_ emoji: String) {
+        selectedEmoji = emoji
+        
+        view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
+    }
+    
+    func didChangeSelectedColor(_ colorHex: String) {
+        selectedColorHex = colorHex
+        
+        view?.setSubmitButtonEnabled(canSaveTracker)
+        
+        buildAndPresentTrackerAppearance()
+    }
+    
+    func createTracker() {
+        guard let tracker = getTrackerModel() else {
+            return
+        }
+        
+        // TODO временное решение, удалить в одном из следующих спринтов (после реализации категорий)
+        // И перенести обработку ошибок в соответствующие методы trackerCategoryStore
+        do {
+            try trackerCategoryStore.createCategory(with: Constants.defaultCategoryName)
+        } catch {
+            logger.error("[TrackerFormViewPresenter.createTracker] Failed to save category with name \(Constants.defaultCategoryName). Error: \(error.localizedDescription)")
+            return
+        }
+        
+        trackerStore.addTracker(tracker, for: Constants.defaultCategoryName)
+    }
+    
+    // MARK: - Private methods
+    private func buildAndPresentTrackerAppearance() {
+        let emojiItems: [TrackerAppearanceItem] = TrackerConstants.emojis.map { emoji in
+            let model = TrackerEmojiCellViewModel(
+                emoji: emoji,
+                isSelected: emoji == selectedEmoji)
+            
+            return .emoji(model: model)
+        }
+        
+        
+        let colorItems: [TrackerAppearanceItem] = TrackerConstants.hexColors.map { colorHex in
+            let model = TrackerColorCellViewModel(
+                colorHex: colorHex,
+                isSelected: colorHex == selectedColorHex)
+            
+            return .color(model: model)
+        }
+        
+        let sections: [TrackerAppearanceSectionModel] = [
+            TrackerAppearanceSectionModel(name: "Emoji", items: emojiItems),
+            TrackerAppearanceSectionModel(name: "Цвет", items: colorItems)
+        ]
+        
+        view?.apply(TrackerAppearanceViewModel(sections: sections))
     }
 }
 
@@ -96,5 +168,8 @@ private extension TrackerFormViewPresenter {
         static let newHabitTitle = "Новая привычка"
         static let newIrregularEventTitle = "Новое нерегулярное событие"
         static let trackerNameError = "Ограничение \(trackerNameMaxLength) символов"
+        
+        // TODO удалить в одном из следующих спринтов (после реализации категорий)
+        static let defaultCategoryName = "Домашний уют"
     }
 }

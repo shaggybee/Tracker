@@ -16,5 +16,8 @@ protocol TrackerFormViewPresenterProtocol {
     func viewDidLoad()
     func didChangeSelectedDays(_ selectedDays: Weekdays)
     func didChangeTrackerName(_ trackerName: String)
-    func getTrackerModel() -> Tracker
+    func didChangeSelectedEmoji(_ emoji: String)
+    func didChangeSelectedColor(_ colorHex: String)
+    func getTrackerModel() -> Tracker?
+    func createTracker()
 }

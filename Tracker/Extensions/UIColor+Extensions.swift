@@ -16,7 +16,10 @@ extension UIColor {
             hexCode.remove(at: hexCode.startIndex)
         }
         
-        Scanner(string: hexCode).scanHexInt64(&rgbValue)
+        guard Scanner(string: hexCode).scanHexInt64(&rgbValue) else {
+            self.init(white: 0, alpha: 1)
+            return
+        }
         
         self.init(
             red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
