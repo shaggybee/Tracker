@@ -24,7 +24,7 @@ final class TrackerRecordStore: TrackerRecordStoreProtocol {
     
     // MARK: - Public methods
     func completeTracker(with trackerId: UUID, for date: Date) {
-        guard let tracker = getTracker(by: trackerId) else {
+        guard let tracker = getTracker(by: trackerId), checkCompletion(with: trackerId, for: date) == false else {
             return
         }
         

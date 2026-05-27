@@ -7,6 +7,12 @@
 
 import CoreData
 
+// MARK: - Constants
+private enum Constants {
+    static let containerName: String = "Tracker"
+}
+
+// MARK: - PersistenceService
 final class PersistenceService {
     static let shared = PersistenceService()
     
@@ -24,9 +30,3 @@ final class PersistenceService {
     }()
 }
 
-// MARK: - Constants
-private extension PersistenceService {
-    enum Constants {
-        static let containerName: String = "Tracker"
-    }
-}

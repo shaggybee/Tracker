@@ -28,11 +28,6 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
         
         tableView.backgroundColor = .background
         tableView.layer.cornerRadius = Radius.size16
-        tableView.separatorInset = UIEdgeInsets(
-            top: 0,
-            left: Spacing.space16,
-            bottom: 0,
-            right: Spacing.space16)
         tableView.separatorColor = .ypGray
         
         return tableView
@@ -122,9 +117,9 @@ extension TrackerScheduleViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        if indexPath.row == presenter.orderedDays.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-        }
+        cell.separatorInset = indexPath.row == presenter.orderedDays.count - 1
+            ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            : UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         
         cell.delegate = self
         

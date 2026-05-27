@@ -38,11 +38,11 @@ final class TrackerColorViewCell: UICollectionViewCell {
         
         colorView.backgroundColor = color
         
-        if viewModel.isSelected {
-            layer.borderColor = color.cgColor.copy(alpha: 0.3)
-        } else {
-            layer.borderColor = UIColor.clear.cgColor
-        }
+        let borderColor = viewModel.isSelected
+                ? color.cgColor.copy(alpha: 0.3)
+                : UIColor.clear.cgColor
+        
+        layer.borderColor = borderColor
     }
     
     // MARK: - Private methods

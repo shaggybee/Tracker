@@ -74,10 +74,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return label
     }().forAutoLayout
     
-    private lazy var emojiLabelWrapper: UIView = {
+    private lazy var emojiContainerView: UIView = {
         let view = UIView()
         
         view.layer.cornerRadius = Constants.emojiWrapperSize / 2
+        view.clipsToBounds = true
         
         return view
     }().forAutoLayout
@@ -115,16 +116,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         availableActionState = model.availableAction
         
         emojiLabel.text = model.emoji
-        emojiLabelWrapper.backgroundColor = .white.withAlphaComponent(0.3)
+        emojiContainerView.backgroundColor = .white.withAlphaComponent(0.3)
     }
     
     // MARK: - Private methods
     private func setElements() {
         configureCompleteButton()
         
-        emojiLabelWrapper.addSubview(emojiLabel)
+        emojiContainerView.addSubview(emojiLabel)
         
-        cardView.addSubview(emojiLabelWrapper)
+        cardView.addSubview(emojiContainerView)
         cardView.addSubview(trackerNameLabel)
         footerStackView.addArrangedSubview(countLabel)
         footerStackView.addArrangedSubview(completeButton)
@@ -142,13 +143,13 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cardView.heightAnchor.constraint(equalToConstant: Constants.cardViewHeight),
             
-            emojiLabelWrapper.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
-            emojiLabelWrapper.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Spacing.space12),
-            emojiLabelWrapper.widthAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
-            emojiLabelWrapper.heightAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
+            emojiContainerView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
+            emojiContainerView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Spacing.space12),
+            emojiContainerView.widthAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
+            emojiContainerView.heightAnchor.constraint(equalToConstant: Constants.emojiWrapperSize),
             
-            emojiLabel.centerXAnchor.constraint(equalTo: emojiLabelWrapper.centerXAnchor),
-            emojiLabel.centerYAnchor.constraint(equalTo: emojiLabelWrapper.centerYAnchor),
+            emojiLabel.centerXAnchor.constraint(equalTo: emojiContainerView.centerXAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: emojiContainerView.centerYAnchor),
             
             trackerNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
             trackerNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Spacing.space12),

@@ -194,7 +194,6 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             return UICollectionViewCell()
         }
         
-        cell.prepareForReuse()
         cell.delegate = self
         cell.configure(with: viewModel)
         
