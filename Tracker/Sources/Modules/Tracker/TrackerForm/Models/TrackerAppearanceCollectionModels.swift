@@ -1,13 +1,13 @@
 //
-//  TrackerAppearanceViewModels.swift
+//  TrackerAppearanceCollectionModels.swift
 //  Tracker
 //
 //  Created by Kislov Vadim on 17.05.2026.
 //
 
 enum TrackerAppearanceItem: Hashable {
-    case emoji(model: TrackerEmojiCellViewModel)
-    case color(model: TrackerColorCellViewModel)
+    case emoji(model: TrackerEmojiCellModel)
+    case color(model: TrackerColorCellModel)
 }
 
 struct TrackerAppearanceSectionModel {
@@ -15,6 +15,6 @@ struct TrackerAppearanceSectionModel {
     let items: [TrackerAppearanceItem]
 }
 
-struct TrackerAppearanceViewModel {
+struct TrackerAppearanceCollectionModel {
     let sections: [TrackerAppearanceSectionModel]
 }

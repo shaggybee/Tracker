@@ -13,7 +13,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     var presenter: TrackerFormViewPresenterProtocol?
     
     // MARK: - Private properties
-    private var trackerAppearanceViewModel: TrackerAppearanceViewModel = TrackerAppearanceViewModel(sections: [])
+    private var trackerAppearanceCollectionModel: TrackerAppearanceCollectionModel = TrackerAppearanceCollectionModel(sections: [])
     private var trackerAppearanceDataSource: UICollectionViewDiffableDataSource<String, TrackerAppearanceItem>!
     
     private lazy var titleLabel: UILabel = {
@@ -98,7 +98,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
             right: Spacing.space2)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
-
+        
         collectionView.isScrollEnabled = false
         
         return collectionView
@@ -121,12 +121,12 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     // MARK: - Public methods
-    func apply(_ viewModel: TrackerAppearanceViewModel) {
-        trackerAppearanceViewModel = viewModel
+    func apply(_ model: TrackerAppearanceCollectionModel) {
+        trackerAppearanceCollectionModel = model
         
         var snapshot = NSDiffableDataSourceSnapshot<String, TrackerAppearanceItem>()
         
-        viewModel.sections.forEach { section in
+        model.sections.forEach { section in
             snapshot.appendSections([section.name])
             snapshot.appendItems(section.items, toSection: section.name)
         }
@@ -186,12 +186,12 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private func configureTackerAppearanceCollectionView() {
         trackerAppearanceDataSource = UICollectionViewDiffableDataSource(
             collectionView: trackerAppearanceCollectionView,
-            cellProvider: getCellViewProvider(collectionView:indexPath:viewModel:))
+            cellProvider: getCellViewProvider(collectionView:indexPath:itemModel:))
         
         trackerAppearanceDataSource.supplementaryViewProvider = getHeaderViewProvider
         
         trackerAppearanceCollectionView.delegate = self
-    
+        
         trackerAppearanceCollectionView.register(
             TrackerColorViewCell.self,
             forCellWithReuseIdentifier: TrackerColorViewCell.reuseIdentifier)
@@ -250,10 +250,10 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private func getCellViewProvider(
         collectionView: UICollectionView,
         indexPath: IndexPath,
-        viewModel: TrackerAppearanceItem
+        itemModel: TrackerAppearanceItem
     ) -> UICollectionViewCell? {
-        switch viewModel {
-        case .emoji(let trackerEmojiCellViewModel):
+        switch itemModel {
+        case .emoji(let trackerEmojiCellModel):
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: TrackerEmojiViewCell.reuseIdentifier,
                 for: indexPath)
@@ -263,20 +263,19 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
                 return UICollectionViewCell()
             }
             
-            cell.configure(with: trackerEmojiCellViewModel)
+            cell.configure(with: trackerEmojiCellModel)
             
             return cell
-        case .color(let trackerColorCellViewModel):
+        case .color(let trackerColorCellModel):
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: TrackerColorViewCell.reuseIdentifier,
                 for: indexPath)
-            
             
             guard let cell = cell as? TrackerColorViewCell else {
                 return UICollectionViewCell()
             }
             
-            cell.configure(with: trackerColorCellViewModel)
+            cell.configure(with: trackerColorCellModel)
             
             return cell
         }
@@ -300,7 +299,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
             return UICollectionReusableView()
         }
         
-        headerView.configure(with: trackerAppearanceViewModel.sections[safe: indexPath.section]?.name ?? "")
+        headerView.configure(with: trackerAppearanceCollectionModel.sections[safe: indexPath.section]?.name ?? "")
         
         return headerView
     }
@@ -361,10 +360,10 @@ extension TrackerFormViewController: UICollectionViewDelegate {
         guard let item = trackerAppearanceDataSource.itemIdentifier(for: indexPath) else { return }
         
         switch item {
-        case .emoji(let trackerEmojiCellViewModel) where !trackerEmojiCellViewModel.isSelected:
-            presenter?.didChangeSelectedEmoji(trackerEmojiCellViewModel.emoji)
-        case .color(let trackerColorCellViewModel) where !trackerColorCellViewModel.isSelected:
-            presenter?.didChangeSelectedColor(trackerColorCellViewModel.colorHex)
+        case .emoji(let trackerEmojiCellModel) where !trackerEmojiCellModel.isSelected:
+            presenter?.didChangeSelectedEmoji(trackerEmojiCellModel.emoji)
+        case .color(let trackerColorCellModel) where !trackerColorCellModel.isSelected:
+            presenter?.didChangeSelectedColor(trackerColorCellModel.colorHex)
         default:
             break
         }

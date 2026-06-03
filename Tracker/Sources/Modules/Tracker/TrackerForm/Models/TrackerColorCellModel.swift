@@ -1,11 +1,11 @@
 //
-//  TrackerColorCellViewModel.swift
+//  TrackerColorCellModel.swift
 //  Tracker
 //
 //  Created by Kislov Vadim on 16.05.2026.
 //
 
-struct TrackerColorCellViewModel: Hashable, Sendable {
+struct TrackerColorCellModel: Hashable, Sendable {
     let colorHex: String
     let isSelected: Bool
 }

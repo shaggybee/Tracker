@@ -1,5 +1,5 @@
 //
-//  TrackersViewModels.swift
+//  TrackersCollectionModels.swift
 //  Tracker
 //
 //  Created by Kislov Vadim on 09.05.2026.
@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct TrackersSectionViewModel {
+struct TrackersSectionModel {
     let name: String
-    let trackers: [TrackerViewModel]
+    let trackers: [TrackerCellModel]
 }
 
-struct TrackersCollectionViewModel {
-    let sections: [TrackersSectionViewModel]
+struct TrackersCollectionModel {
+    let sections: [TrackersSectionModel]
 }
 
-struct TrackerViewModel: Hashable, Sendable {
+struct TrackerCellModel: Hashable, Sendable {
     let id: UUID
     let name: String
     let emoji: String?

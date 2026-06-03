@@ -33,12 +33,12 @@ final class TrackerColorViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with viewModel: TrackerColorCellViewModel) {
-        let color = UIColor(hexString: viewModel.colorHex)
+    func configure(with model: TrackerColorCellModel) {
+        let color = UIColor(hexString: model.colorHex)
         
         colorView.backgroundColor = color
         
-        let borderColor = viewModel.isSelected
+        let borderColor = model.isSelected
                 ? color.cgColor.copy(alpha: 0.3)
                 : UIColor.clear.cgColor
         

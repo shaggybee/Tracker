@@ -34,10 +34,10 @@ final class TrackerEmojiViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with viewModel: TrackerEmojiCellViewModel) {
-        emojiLabel.text = viewModel.emoji
+    func configure(with model: TrackerEmojiCellModel) {
+        emojiLabel.text = model.emoji
         
-        backgroundColor = viewModel.isSelected ? .ypLightGray  : UIColor.clear
+        backgroundColor = model.isSelected ? .ypLightGray  : UIColor.clear
     }
     
     // MARK: - Private methods

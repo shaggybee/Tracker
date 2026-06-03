@@ -135,7 +135,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     // MARK: - Private methods
     private func buildAndPresentTrackerAppearance() {
         let emojiItems: [TrackerAppearanceItem] = TrackerConstants.emojis.map { emoji in
-            let model = TrackerEmojiCellViewModel(
+            let model = TrackerEmojiCellModel(
                 emoji: emoji,
                 isSelected: emoji == selectedEmoji)
             
@@ -144,7 +144,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         
         
         let colorItems: [TrackerAppearanceItem] = TrackerConstants.hexColors.map { colorHex in
-            let model = TrackerColorCellViewModel(
+            let model = TrackerColorCellModel(
                 colorHex: colorHex,
                 isSelected: colorHex == selectedColorHex)
             
@@ -156,7 +156,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             TrackerAppearanceSectionModel(name: "Цвет", items: colorItems)
         ]
         
-        view?.apply(TrackerAppearanceViewModel(sections: sections))
+        view?.apply(TrackerAppearanceCollectionModel(sections: sections))
     }
 }
 

@@ -42,32 +42,32 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     // MARK: - Private methods
     private func buildAndPresent(trackerSections: [TrackerCategory]) {
         if trackerSections.isEmpty || trackerSections.allSatisfy({ $0.trackers.isEmpty }) {
-            view?.apply(TrackersCollectionViewModel(sections: []))
+            view?.apply(TrackersCollectionModel(sections: []))
             view?.setEmptyStateVisible(true)
             
             return
         }
         
-        let sections: [TrackersSectionViewModel] = trackerSections
+        let sections: [TrackersSectionModel] = trackerSections
             .map { trackerSection in
                 let name = trackerSection.name
                 
                 let trackers = trackerSection.trackers
-                    .map(prepareViewModel)
+                    .map(prepareModel)
                 
-                return TrackersSectionViewModel(
+                return TrackersSectionModel(
                     name: name,
                     trackers: trackers)
             }
         
-        view?.apply(TrackersCollectionViewModel(sections: sections))
+        view?.apply(TrackersCollectionModel(sections: sections))
         view?.setEmptyStateVisible(sections.isEmpty)
     }
     
-    private func prepareViewModel(for tracker: Tracker) -> TrackerViewModel {
+    private func prepareModel(for tracker: Tracker) -> TrackerCellModel {
         let completedDaysCount: Int = trackerRecordStore.getCompletionsCount(for: tracker.id)
         
-        return TrackerViewModel(
+        return TrackerCellModel(
             id: tracker.id,
             name: tracker.name,
             emoji: tracker.emoji,
