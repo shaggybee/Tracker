@@ -23,6 +23,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private var trackerType: TrackerType
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
+    private(set) var categoryName: String?
     private(set) var selectedEmoji: String?
     private(set) var selectedColorHex: String?
     
@@ -30,6 +31,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private var canSaveTracker: Bool {
         guard !isTrackerNameInvalid,
               !trackerName.isEmpty,
+              !(categoryName ?? "").isEmpty,
               let _ = selectedEmoji,
               let _ = selectedColorHex
         else { return false }
@@ -41,8 +43,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             return true
         }
     }
-    
-    private lazy var trackerCategoryStore = TrackerCategoryStore()
+
     private lazy var trackerStore = TrackerStore()
     private lazy var logger = AppLogger.shared
     
@@ -85,6 +86,13 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         view?.setSubmitButtonEnabled(canSaveTracker)
     }
     
+    func didChangeTrackerCategory(_ categoryName: String?) {
+        self.categoryName = categoryName
+        
+        view?.setDescription(for: .category, with: categoryName ?? "")
+        view?.setSubmitButtonEnabled(canSaveTracker)
+    }
+    
     func getTrackerModel() -> Tracker? {
         guard let selectedColorHex, let selectedEmoji else {
             return nil
@@ -116,20 +124,11 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func createTracker() {
-        guard let tracker = getTrackerModel() else {
+        guard let tracker = getTrackerModel(), let categoryName, !categoryName.isEmpty else {
             return
         }
         
-        // TODO временное решение, удалить в одном из следующих спринтов (после реализации категорий)
-        // И перенести обработку ошибок в соответствующие методы trackerCategoryStore
-        do {
-            try trackerCategoryStore.createCategory(with: Constants.defaultCategoryName)
-        } catch {
-            logger.error("[TrackerFormViewPresenter.createTracker] Failed to save category with name \(Constants.defaultCategoryName). Error: \(error.localizedDescription)")
-            return
-        }
-        
-        trackerStore.addTracker(tracker, for: Constants.defaultCategoryName)
+        trackerStore.addTracker(tracker, for: categoryName)
     }
     
     // MARK: - Private methods
@@ -168,8 +167,5 @@ private extension TrackerFormViewPresenter {
         static let newHabitTitle = "Новая привычка"
         static let newIrregularEventTitle = "Новое нерегулярное событие"
         static let trackerNameError = "Ограничение \(trackerNameMaxLength) символов"
-        
-        // TODO удалить в одном из следующих спринтов (после реализации категорий)
-        static let defaultCategoryName = "Домашний уют"
     }
 }

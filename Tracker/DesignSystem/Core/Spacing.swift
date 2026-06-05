@@ -20,8 +20,10 @@ enum Spacing {
     static let space20: CGFloat = 20
     static let space22: CGFloat = 22
     static let space24: CGFloat = 24
+    static let space26: CGFloat = 26
     static let space28: CGFloat = 28
     static let space30: CGFloat = 30
     static let space32: CGFloat = 32
+    static let space38: CGFloat = 38
     static let space50: CGFloat = 50
 }

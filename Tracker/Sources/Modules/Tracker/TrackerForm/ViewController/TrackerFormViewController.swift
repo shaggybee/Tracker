@@ -324,7 +324,13 @@ extension TrackerFormViewController: TrackerOptionsViewDelegate {
     func trackerOptionsView(_ view: TrackerOptionsView, didSelectOptionWith type: TrackerOptionType) {
         switch type {
         case .category:
-            return
+            let trackerCategoriesVC = TrackerCategoriesViewController()
+            let viewModel = TrackerCategoriesViewModel(currentCategory: presenter?.categoryName)
+            
+            trackerCategoriesVC.delegate = self
+            trackerCategoriesVC.initialize(viewModel: viewModel)
+            
+            present(trackerCategoriesVC, animated: true)
         case .schedule:
             let trackerScheduleVC = TrackerScheduleViewController()
             let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter?.selectedDays ?? [])
@@ -388,6 +394,15 @@ extension TrackerFormViewController: UICollectionViewDelegateFlowLayout {
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
         CGSize(width: collectionView.frame.width, height: Constants.headerSectionHeight)
+    }
+}
+
+// MARK: - CategoriesViewControllerDelegate
+extension TrackerFormViewController: TrackerCategoriesViewControllerDelegate {
+    func trackerCategoriesViewController(_ viewController: TrackerCategoriesViewController, didChangeCategoryName categoryName: String?) {
+        presenter?.didChangeTrackerCategory(categoryName)
+        
+        viewController.dismiss(animated: true)
     }
 }
 

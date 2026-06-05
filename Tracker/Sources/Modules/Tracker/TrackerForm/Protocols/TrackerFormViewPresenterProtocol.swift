@@ -11,11 +11,13 @@ protocol TrackerFormViewPresenterProtocol {
     var view: TrackerFormViewControllerProtocol? { get set }
     var selectedDays: Weekdays { get }
     var trackerName: String { get }
+    var categoryName: String? { get }
     var trackerOptions: [TrackerOptionType] { get }
     var trackerFormTitle: String { get }
     func viewDidLoad()
     func didChangeSelectedDays(_ selectedDays: Weekdays)
     func didChangeTrackerName(_ trackerName: String)
+    func didChangeTrackerCategory(_ categoryName: String?)
     func didChangeSelectedEmoji(_ emoji: String)
     func didChangeSelectedColor(_ colorHex: String)
     func getTrackerModel() -> Tracker?
