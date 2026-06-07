@@ -94,7 +94,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func getTrackerModel() -> Tracker? {
-        guard let selectedColorHex, let selectedEmoji else {
+        guard let selectedColorHex, let selectedEmoji, let categoryName, !categoryName.isEmpty else {
             return nil
         }
         
@@ -104,6 +104,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             colorHex: selectedColorHex,
             emoji: selectedEmoji,
             type: trackerType,
+            categoryName: categoryName,
             schedule: selectedDays)
     }
     
@@ -124,11 +125,11 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     func createTracker() {
-        guard let tracker = getTrackerModel(), let categoryName, !categoryName.isEmpty else {
+        guard let tracker = getTrackerModel() else {
             return
         }
         
-        trackerStore.addTracker(tracker, for: categoryName)
+        trackerStore.addTracker(tracker)
     }
     
     // MARK: - Private methods

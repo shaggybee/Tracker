@@ -96,8 +96,4 @@ extension TrackerCategoriesViewModel: TrackerCategoryStoreDelegate {
     func trackerCategoryStore(_ store: TrackerCategoryStore, didUpdateTrackersCategories categories: [String]) {
         self.categories = categories
     }
-    
-    func trackerCategoryStore(_ store: TrackerCategoryStore, didLoadTrackersCategories categories: [String]) {
-        self.categories = categories
-    }
 }

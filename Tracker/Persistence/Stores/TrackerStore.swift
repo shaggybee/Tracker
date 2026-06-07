@@ -48,9 +48,9 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         delegate?.trackerStore(self, didUpdateTrackersSections: sections)
     }
     
-    func addTracker(_ tracker: Tracker, for categoryName: String) {
+    func addTracker(_ tracker: Tracker) {
         do {
-            guard let category = try findCategory(by: categoryName) else {
+            guard let category = try findCategory(by: tracker.categoryName) else {
                 return
             }
             
@@ -92,7 +92,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     private func getTrackerFetchRequest(for trackerQuery: TrackerQuery) -> NSFetchRequest<TrackerCoreData>? {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
-            NSSortDescriptor(keyPath: \TrackerCoreData.category?.name, ascending: true),
+            NSSortDescriptor(keyPath: \TrackerCoreData.categoryName, ascending: true),
             NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)
         ]
         
@@ -144,6 +144,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         tracker.colorHex = model.colorHex
         tracker.emoji = model.emoji
         tracker.type = model.type.rawValue
+        tracker.categoryName = model.categoryName
         tracker.schedule = model.schedule.rawValue
         
         return tracker
@@ -170,6 +171,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
               let name = trackerCoreData.name,
               let colorHex = trackerCoreData.colorHex,
               let emoji = trackerCoreData.emoji,
+              let categoryName = trackerCoreData.categoryName,
               let type = TrackerType(rawValue: trackerCoreData.type ?? "") else { return nil }
         
         return Tracker(
@@ -178,6 +180,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             colorHex: colorHex,
             emoji: emoji,
             type: type,
+            categoryName: categoryName,
             schedule: Weekdays(rawValue: trackerCoreData.schedule))
     }
 }

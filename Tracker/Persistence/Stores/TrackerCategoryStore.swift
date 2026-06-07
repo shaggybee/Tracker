@@ -65,6 +65,12 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
             
             category.name = newName
             
+            guard let trackers = category.trackers as? Set<TrackerCoreData> else { return }
+            
+            trackers.forEach { tracker in
+                tracker.categoryName = newName
+            }
+            
             try context.save()
         } catch {
             logger.error("[TrackerCategoryStore.updateCategory] Failed to update category. Error: \(error.localizedDescription)")
@@ -102,7 +108,7 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
             return
         }
     
-        delegate?.trackerCategoryStore(self, didLoadTrackersCategories: prepareCategories())
+        delegate?.trackerCategoryStore(self, didUpdateTrackersCategories: prepareCategories())
     }
     
     // MARK: - Private methods

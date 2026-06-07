@@ -9,5 +9,5 @@ import Foundation
 
 protocol TrackerStoreProtocol {
     func loadTrackers(for trackerQuery: TrackerQuery)
-    func addTracker(_ tracker: Tracker, for categoryName: String)
+    func addTracker(_ tracker: Tracker)
 }

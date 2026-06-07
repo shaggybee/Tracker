@@ -13,5 +13,6 @@ struct Tracker {
     let colorHex: String
     let emoji: String
     let type: TrackerType
+    let categoryName: String
     let schedule: Weekdays
 }
