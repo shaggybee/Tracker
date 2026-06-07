@@ -10,7 +10,7 @@ import UIKit
 final class OnboardingPageViewController: UIPageViewController {
     
     // MARK: - Public properties
-    var didCompleteOnboarding: (() -> Void)?
+    var didCompleteOnboarding: Completion?
     
     // MARK: - Private properties
     private lazy var pages: [UIViewController] = {

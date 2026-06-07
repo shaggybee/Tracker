@@ -10,7 +10,7 @@ import Foundation
 enum TrackerCategoryStoreError: LocalizedError {
     case duplicateName
     case categoryNotFound
-
+    
     var errorDescription: String? {
         switch self {
         case .duplicateName:

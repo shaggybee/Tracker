@@ -67,9 +67,15 @@ final class InputFieldView: UIView {
     }
     
     // MARK: - Public methods
+    func setText(_ text: String) {
+        textField.text = text
+    }
+    
     func setError(_ error: String?) {
+        if hintLabel.text == error { return }
+        
         guard let error else {
-            hintLabel.text = ""
+            hintLabel.text = nil
             hintLabel.isHidden = true
             
             return

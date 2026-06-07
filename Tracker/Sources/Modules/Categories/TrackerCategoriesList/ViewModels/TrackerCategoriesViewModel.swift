@@ -18,7 +18,9 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
         }
     }
     
-    var onCategoriesLoaded: (() -> Void)?
+    var isCategoriesEmpty: Bool { categories.isEmpty }
+    
+    var onCategoriesLoaded: Completion?
     
     // MARK: Private properties
     private var selectedCategory: String?

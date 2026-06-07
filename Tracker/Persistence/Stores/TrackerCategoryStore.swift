@@ -101,18 +101,8 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
             
             return
         }
-        
-        guard let categories = fetchedResultsController.fetchedObjects else {
-            return
-        }
-        
-        let preparedCategories: [String] = categories.compactMap { category in
-            guard let name = category.name, !name.isEmpty else { return nil }
-            
-            return name
-        }
-        
-        delegate?.trackerCategoryStore(self, didLoadTrackersCategories: preparedCategories)
+    
+        delegate?.trackerCategoryStore(self, didLoadTrackersCategories: prepareCategories())
     }
     
     // MARK: - Private methods
@@ -140,12 +130,25 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
         
         fetchedResultsController = resultsController
     }
+    
+    private func prepareCategories() -> [String] {
+        guard let categories = fetchedResultsController?.fetchedObjects else {
+            return []
+        }
+        
+        let preparedCategories: [String] = categories.compactMap { category in
+            guard let name = category.name, !name.isEmpty else { return nil }
+            
+            return name
+        }
+        
+        return preparedCategories
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>){
-        
-        delegate?.trackerCategoryStore(self, didUpdateTrackersCategories: [])
+        delegate?.trackerCategoryStore(self, didUpdateTrackersCategories: prepareCategories())
     }
 }

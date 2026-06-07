@@ -9,7 +9,7 @@ import UIKit
 
 final class TrackerCategoriesTableViewCell: UITableViewCell {
     // MARK: - Static properties
-    static let reuseIdentifier = "TrackerCategoriesTableViewCell"
+    static let reuseIdentifier = Constants.cellReuseIdentifier
     
     // MARK: - Private properties
     private lazy var categoryNameLabel: UILabel = {
@@ -40,6 +40,15 @@ final class TrackerCategoriesTableViewCell: UITableViewCell {
         return image
     }().forAutoLayout
     
+    private lazy var separatorView: UIView = {
+        let view = UIView()
+        
+        view.backgroundColor = .ypGray
+        view.isHidden = true
+        
+        return view
+    }().forAutoLayout
+    
     // MARK: - Initializers
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -53,9 +62,10 @@ final class TrackerCategoriesTableViewCell: UITableViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with title: String, isSelected: Bool) {
+    func configure(with title: String, isSelected: Bool, withSeparator: Bool) {
         categoryNameLabel.text = title
         selectedIndicatorImage.isHidden = !isSelected
+        separatorView.isHidden = !withSeparator
     }
     
     // MARK: - Private methods
@@ -67,6 +77,7 @@ final class TrackerCategoriesTableViewCell: UITableViewCell {
         cellStackView.addArrangedSubview(selectedIndicatorImage)
         
         contentView.addSubview(cellStackView)
+        contentView.addSubview(separatorView)
         
         setupConstraints()
     }
@@ -77,6 +88,20 @@ final class TrackerCategoriesTableViewCell: UITableViewCell {
             cellStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Spacing.space26),
             cellStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.space16),
             cellStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.space16),
+            
+            separatorView.leadingAnchor.constraint(equalTo: cellStackView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellStackView.trailingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: Constants.separatorViewHeight)
         ])
+    }
+}
+
+// MARK: - Constants
+private extension TrackerCategoriesTableViewCell {
+    enum Constants {
+        static let cellReuseIdentifier = "TrackerCategoriesTableViewCell"
+        
+        static let separatorViewHeight: CGFloat = 0.5
     }
 }

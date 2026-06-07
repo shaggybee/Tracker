@@ -29,8 +29,8 @@ final class TrackerCategoriesViewController: UIViewController {
         
         tableView.backgroundColor = .background
         tableView.layer.cornerRadius = Radius.size16
-        tableView.separatorColor = .ypGray
         tableView.isHidden = true
+        tableView.separatorColor = .clear
         tableView.showsVerticalScrollIndicator = false
         
         return tableView
@@ -86,19 +86,20 @@ final class TrackerCategoriesViewController: UIViewController {
         viewModel?.onCategoriesLoaded = { [weak self] in
             guard let self else { return }
             
-            updateEmptyState()
+            let isEmpty = viewModel?.isCategoriesEmpty ?? true
+            
+            updateEmptyState(isEmpty)
+            
+            if isEmpty { return }
             
             tableView.reloadData()
-            
-            DispatchQueue.main.async {
-                 self.updateTableHeight()
-             }
+            updateTableHeight()
         }
     }
     
     private func setElements() {
         configTable()
-        updateEmptyState()
+        updateEmptyState(viewModel?.isCategoriesEmpty ?? true)
         
         view.backgroundColor = .white
         
@@ -144,7 +145,7 @@ final class TrackerCategoriesViewController: UIViewController {
     }
     
     private func updateTableHeight() {
-        if tableView.isHidden {
+        guard let viewModel, !tableView.isHidden else {
             return
         }
         
@@ -152,31 +153,33 @@ final class TrackerCategoriesViewController: UIViewController {
         
         let availableHeight = addCategoryButton.frame.minY - titleLabel.frame.maxY - Spacing.space38 - Spacing.space16
         
-        if availableHeight <= 0 || availableHeight == tableViewHeightConstraint.constant {
-            return
-        }
+        if availableHeight <= 0 { return }
         
-        let contentHeight = tableView.contentSize.height
+        let contentHeight = Constants.cellHeight * CGFloat(viewModel.categories.count)
+        let newTableHeight = min(availableHeight, contentHeight)
         
-        let maxTableHeight = min(availableHeight, tableView.contentSize.height)
+        if newTableHeight == tableViewHeightConstraint.constant { return }
         
-        if maxTableHeight == tableViewHeightConstraint.constant {
-            return
-        }
-        
-        tableViewHeightConstraint.constant = maxTableHeight
+        tableViewHeightConstraint.constant = newTableHeight
         tableView.isScrollEnabled = contentHeight > availableHeight
     }
     
-    private func updateEmptyState() {
-        let isCategoriesEmpty = (viewModel?.categories ?? []).isEmpty
-        
-        emptyStateView.isHidden = !isCategoriesEmpty
-        tableView.isHidden = isCategoriesEmpty
+    private func updateEmptyState(_ isEmpty: Bool) {
+        emptyStateView.isHidden = !isEmpty
+        tableView.isHidden = isEmpty
     }
     
     @objc private func didTapAddCategoryButton(_ sender: UIButton) {
+        let categoryFormVC = TrackerCategoryFormViewController()
         
+        let viewModel = TrackerCategoryFormViewModel(
+            model: TrackerCategoryFormModel()
+        )
+        
+        categoryFormVC.initialize(viewModel: viewModel)
+        categoryFormVC.delegate = self
+        
+        present(categoryFormVC, animated: true)
     }
 }
 
@@ -198,11 +201,11 @@ extension TrackerCategoriesViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.separatorInset = indexPath.row == viewModel.categories.count - 1
-            ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-            : UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
-        
-        cell.configure(with: categoryName, isSelected: viewModel.isSelected(category: categoryName))
+        cell.configure(
+            with: categoryName,
+            isSelected: viewModel.isSelected(category: categoryName),
+            withSeparator: indexPath.row != viewModel.categories.count - 1
+        )
         
         return cell
     }
@@ -220,6 +223,12 @@ extension TrackerCategoriesViewController: UITableViewDataSource {
 extension TrackerCategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         Constants.cellHeight
+    }
+}
+
+extension TrackerCategoriesViewController: TrackerCategoryFormViewControllerProtocol {
+    func trackerCategoryFormViewControllerDidSave(_ viewController: TrackerCategoryFormViewController) {
+        viewController.dismiss(animated: true)
     }
 }
 

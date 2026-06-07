@@ -103,7 +103,7 @@ final class TrackerOptionsView: UIView {
         let separatorView = UIView(frame: .zero)
         
         separatorView.backgroundColor = .ypGray
-        separatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        separatorView.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
         
         return separatorView.forAutoLayout
     }
