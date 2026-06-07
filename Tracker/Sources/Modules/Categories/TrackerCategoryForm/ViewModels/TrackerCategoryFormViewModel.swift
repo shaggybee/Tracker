@@ -16,15 +16,17 @@ final class TrackerCategoryFormViewModel: TrackerCategoryFormViewModelProtocol {
     var onSaveEnabledChanged: Binding<Bool>?
     var onCategoryNameErrorChanged: Binding<String?>?
     var onSaveFailed: Binding<String?>?
-    var onSaveCompleted: Completion?
+    var onSaveCompleted: Binding<String>?
+    
+    let isEditMode: Bool
     
     // MARK: Private properties
     private var trackerCategoryStore: TrackerCategoryStoreProtocol?
     
     private(set) var categoryName: String
-    private var isEditMode = false
     private let model: TrackerCategoryFormModel
     
+    // MARK: - Initializers
     convenience init(model: TrackerCategoryFormModel) {
         self.init(model: model, trackerCategoryStore: TrackerCategoryStore())
     }
@@ -46,7 +48,7 @@ final class TrackerCategoryFormViewModel: TrackerCategoryFormViewModelProtocol {
                 try trackerCategoryStore?.createCategory(with: categoryName)
             }
             
-            onSaveCompleted?()
+            onSaveCompleted?(categoryName)
         } catch let error {
             guard let error = error as? TrackerCategoryStoreError else {
                 return

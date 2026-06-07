@@ -16,6 +16,7 @@ final class TrackerCategoryFormModel {
     // MARK: - Public properties
     let categoryName: String?
     
+    // MARK: - Initializers
     init(categoryName: String? = nil) {
         self.categoryName = categoryName
     }

@@ -10,7 +10,7 @@ import UIKit
 final class TrackerCategoriesViewController: UIViewController {
     
     // MARK: - Public properties
-    weak var delegate: TrackerCategoriesViewControllerDelegate?
+    var onTrackerCategoryChanged: Binding<String?>?
     
     // MARK: - Private properties
     private var viewModel: TrackerCategoriesViewModelProtocol?
@@ -30,8 +30,10 @@ final class TrackerCategoriesViewController: UIViewController {
         tableView.backgroundColor = .background
         tableView.layer.cornerRadius = Radius.size16
         tableView.isHidden = true
-        tableView.separatorColor = .clear
         tableView.showsVerticalScrollIndicator = false
+        
+        tableView.separatorColor = .ypGray
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         
         return tableView
     }().forAutoLayout
@@ -70,7 +72,7 @@ final class TrackerCategoriesViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
+        
         updateTableHeight()
     }
     
@@ -94,6 +96,29 @@ final class TrackerCategoriesViewController: UIViewController {
             
             tableView.reloadData()
             updateTableHeight()
+        }
+        
+        viewModel?.onShowCategoryForm = { [weak self] categoryFormViewModel in
+            guard let self else { return }
+            
+            let updatingCategoryName = categoryFormViewModel.categoryName
+            
+            let categoryFormVC = TrackerCategoryFormViewController()
+            
+            categoryFormVC.initialize(viewModel: categoryFormViewModel)
+            categoryFormVC.onComplete = { newCategoryName in
+                if categoryFormViewModel.isEditMode {
+                    self.viewModel?.didUpdateCategory(with: updatingCategoryName, by: newCategoryName)
+                }
+                
+                self.dismiss(animated: true)
+            }
+            
+            present(categoryFormVC, animated: true)
+        }
+        
+        viewModel?.onCategoryChanged = { [weak self] categoryName in
+            self?.onTrackerCategoryChanged?(categoryName)
         }
     }
     
@@ -164,22 +189,32 @@ final class TrackerCategoriesViewController: UIViewController {
         tableView.isScrollEnabled = contentHeight > availableHeight
     }
     
+    private func showConfirmationDeleteAlert(for categoryName: String) {
+        let alert = UIAlertController(
+            title: Constants.deleteConfirmationText,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let delete = UIAlertAction(title: Constants.deleteActionTitle, style: .destructive) { [weak self] _ in
+            self?.viewModel?.deleteCategory(with: categoryName)
+        }
+        
+        let cancel = UIAlertAction(title: Constants.cancelActionTitle, style: .cancel)
+        
+        alert.addAction(delete)
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
+    }
+    
     private func updateEmptyState(_ isEmpty: Bool) {
         emptyStateView.isHidden = !isEmpty
         tableView.isHidden = isEmpty
     }
     
     @objc private func didTapAddCategoryButton(_ sender: UIButton) {
-        let categoryFormVC = TrackerCategoryFormViewController()
-        
-        let viewModel = TrackerCategoryFormViewModel(
-            model: TrackerCategoryFormModel()
-        )
-        
-        categoryFormVC.initialize(viewModel: viewModel)
-        categoryFormVC.delegate = self
-        
-        present(categoryFormVC, animated: true)
+        viewModel?.didTapCreateCategory()
     }
 }
 
@@ -203,9 +238,12 @@ extension TrackerCategoriesViewController: UITableViewDataSource {
         
         cell.configure(
             with: categoryName,
-            isSelected: viewModel.isSelected(category: categoryName),
-            withSeparator: indexPath.row != viewModel.categories.count - 1
+            isSelected: viewModel.isSelected(category: categoryName)
         )
+        
+        cell.separatorInset = indexPath.row == viewModel.categories.count - 1
+            ? UIEdgeInsets(top: 0, left: tableView.bounds.width, bottom: 0, right: 0)
+            : UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         
         return cell
     }
@@ -215,7 +253,7 @@ extension TrackerCategoriesViewController: UITableViewDataSource {
             return
         }
         
-        delegate?.trackerCategoriesViewController(self, didChangeCategoryName: categoryName)
+        viewModel?.didSelectCategory(categoryName)
     }
 }
 
@@ -224,11 +262,34 @@ extension TrackerCategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         Constants.cellHeight
     }
-}
-
-extension TrackerCategoriesViewController: TrackerCategoryFormViewControllerProtocol {
-    func trackerCategoryFormViewControllerDidSave(_ viewController: TrackerCategoryFormViewController) {
-        viewController.dismiss(animated: true)
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            let editAction = UIAction(
+                title: Constants.editActionTitle
+            ) { _ in
+                guard let self,
+                      let categoryName = self.viewModel?.categories[safe: indexPath.row] else {
+                    return
+                }
+                
+                self.viewModel?.didTapUpdateCategory(with: categoryName)
+            }
+            
+            let deleteAction = UIAction(
+                title: Constants.deleteActionTitle,
+                attributes: .destructive
+            ) { _ in
+                guard let self,
+                      let categoryName = self.viewModel?.categories[safe: indexPath.row] else {
+                    return
+                }
+                
+                self.showConfirmationDeleteAlert(for: categoryName)
+            }
+            
+            return UIMenu(children: [editAction, deleteAction])
+        }
     }
 }
 
@@ -242,5 +303,9 @@ private extension TrackerCategoriesViewController {
         static let title = "Категория"
         static let addCategoryButtonText = "Добавить категорию"
         static let emptyStateText = "Привычки и события можно объединить по смыслу"
+        static let editActionTitle = "Редактировать"
+        static let deleteActionTitle = "Удалить"
+        static let cancelActionTitle = "Отменить"
+        static let deleteConfirmationText = "Эта категория точно не нужна?"
     }
 }

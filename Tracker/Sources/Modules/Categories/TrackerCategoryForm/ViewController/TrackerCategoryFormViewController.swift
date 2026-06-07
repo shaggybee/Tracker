@@ -8,8 +8,9 @@
 import UIKit
 
 final class TrackerCategoryFormViewController: UIViewController {
+    
     // MARK: - Public properties
-    weak var delegate: TrackerCategoryFormViewControllerProtocol?
+    var onComplete: Binding<String>?
     
     // MARK: - Private properties
     private var viewModel: TrackerCategoryFormViewModelProtocol?
@@ -77,10 +78,10 @@ final class TrackerCategoryFormViewController: UIViewController {
             self?.showAlert(with: error)
         }
         
-        viewModel.onSaveCompleted = { [weak self] in
+        viewModel.onSaveCompleted = { [weak self] categoryName in
             guard let self else { return }
             
-            self.delegate?.trackerCategoryFormViewControllerDidSave(self)
+            self.onComplete?(categoryName)
         }
     }
     
@@ -102,7 +103,7 @@ final class TrackerCategoryFormViewController: UIViewController {
         nameInputField.delegate = self
         nameInputField.setText(viewModel?.categoryName ?? "")
         
-        submitButton.isEnabled = viewModel?.isSaveEnabled ?? false
+        setSubmitButtonEnabled(viewModel?.isSaveEnabled ?? false)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -161,7 +162,9 @@ final class TrackerCategoryFormViewController: UIViewController {
 // MARK: - InputFieldViewDelegate
 extension TrackerCategoryFormViewController: InputFieldViewDelegate {
     func inputFieldView(_ inputFieldView: InputFieldView, didChange text: String) {
-        viewModel?.didChange(text: text)
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        viewModel?.didChange(text: trimmedText)
     }
 }
 
