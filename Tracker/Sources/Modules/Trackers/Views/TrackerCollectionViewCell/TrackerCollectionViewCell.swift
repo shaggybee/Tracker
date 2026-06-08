@@ -106,7 +106,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with model: TrackerViewModel) {
+    func configure(with model: TrackerCellModel) {
         let color = UIColor(hexString: model.colorHex)
         
         trackerNameLabel.text = model.name

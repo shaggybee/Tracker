@@ -13,9 +13,9 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     var presenter: TrackersViewPresenterProtocol?
     
     // MARK: - Private properties
-    private var trackersCollectionViewModel: TrackersCollectionViewModel = TrackersCollectionViewModel(sections: [])
+    private var trackersCollectionModel: TrackersCollectionModel = TrackersCollectionModel(sections: [])
     
-    private var trackersDataSource: UICollectionViewDiffableDataSource<String, TrackerViewModel>!
+    private var trackersDataSource: UICollectionViewDiffableDataSource<String, TrackerCellModel>!
     
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
@@ -96,12 +96,12 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }
     
     // MARK: - Public methods
-    func apply(_ viewModel: TrackersCollectionViewModel) {
-        trackersCollectionViewModel = viewModel
+    func apply(_ model: TrackersCollectionModel) {
+        trackersCollectionModel = model
         
-        var snapshot = NSDiffableDataSourceSnapshot<String, TrackerViewModel>()
+        var snapshot = NSDiffableDataSourceSnapshot<String, TrackerCellModel>()
         
-        viewModel.sections.forEach { section in
+        model.sections.forEach { section in
             snapshot.appendSections([section.name])
             snapshot.appendItems(section.trackers, toSection: section.name)
         }
@@ -139,7 +139,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     private func configureTrackersCollectionView() {
         trackersDataSource = UICollectionViewDiffableDataSource(
             collectionView: trackersCollectionView,
-            cellProvider: getCellViewProvider(collectionView:indexPath:viewModel:))
+            cellProvider: getCellViewProvider(collectionView:indexPath:itemModel:))
         
         trackersDataSource.supplementaryViewProvider = getHeaderViewProvider
         
@@ -184,7 +184,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     private func getCellViewProvider(
         collectionView: UICollectionView,
         indexPath: IndexPath,
-        viewModel: TrackerViewModel
+        itemModel: TrackerCellModel
     ) -> UICollectionViewCell? {
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
@@ -195,7 +195,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         }
         
         cell.delegate = self
-        cell.configure(with: viewModel)
+        cell.configure(with: itemModel)
         
         return cell
     }
@@ -218,7 +218,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             return UICollectionReusableView()
         }
         
-        headerView.configure(with: trackersCollectionViewModel.sections[safe: indexPath.section]?.name ?? "")
+        headerView.configure(with: trackersCollectionModel.sections[safe: indexPath.section]?.name ?? "")
         
         return headerView
     }
@@ -277,9 +277,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: TrackerCollectionViewCellDelegate {
     func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
         guard let indexPath = trackersCollectionView.indexPath(for: cell),
-              let trackerViewModel = trackersCollectionViewModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return }
+              let trackerCellModel = trackersCollectionModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return }
         
-        presenter?.setTrackerCompleted(isCompleted, for: trackerViewModel.id)
+        presenter?.setTrackerCompleted(isCompleted, for: trackerCellModel.id)
     }
 }
 

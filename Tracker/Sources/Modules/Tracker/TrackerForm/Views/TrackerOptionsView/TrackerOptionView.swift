@@ -10,7 +10,7 @@ import UIKit
 final class TrackerOptionView: UIView {
     
     // MARK: - Public properties
-    var onTap: (() -> Void)?
+    var onTap: Completion?
     
     // MARK: - Private properties
     private lazy var titleLabel: UILabel = {
