@@ -149,7 +149,7 @@ final class TrackerCategoriesViewController: UIViewController {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Spacing.space28),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: Constants.titleLableHeight),
+            titleLabel.heightAnchor.constraint(equalToConstant: Constants.titleLabelHeight),
             
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space38),
             tableView.bottomAnchor.constraint(lessThanOrEqualTo: addCategoryButton.topAnchor, constant: -Spacing.space16),
@@ -298,7 +298,7 @@ private extension TrackerCategoriesViewController {
     enum Constants {
         static let addCategoryButtonHeight: CGFloat = 60
         static let cellHeight: CGFloat = 75
-        static let titleLableHeight: CGFloat = 22
+        static let titleLabelHeight: CGFloat = 22
         
         static let title = "Категория"
         static let addCategoryButtonText = "Добавить категорию"

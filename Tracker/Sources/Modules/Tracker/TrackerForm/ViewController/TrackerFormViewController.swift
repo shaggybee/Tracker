@@ -138,12 +138,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         if submitButton.isEnabled == isEnabled { return }
         
         submitButton.isEnabled = isEnabled
-        
-        if (isEnabled) {
-            submitButton.backgroundColor = .ypBlack
-        } else {
-            submitButton.backgroundColor = .ypGray
-        }
+        submitButton.backgroundColor = isEnabled ? .ypBlack: .ypGray
     }
     
     func setTrackerNameFieldError(_ error: String?) {

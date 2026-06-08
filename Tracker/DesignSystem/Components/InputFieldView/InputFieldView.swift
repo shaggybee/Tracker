@@ -72,7 +72,7 @@ final class InputFieldView: UIView {
     }
     
     func setError(_ error: String?) {
-        if hintLabel.text == error { return }
+        guard hintLabel.text != error else { return }
         
         guard let error else {
             hintLabel.text = nil

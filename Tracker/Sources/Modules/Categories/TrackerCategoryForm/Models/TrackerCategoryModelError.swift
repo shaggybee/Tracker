@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 enum TrackerCategoryModelError: Error {
     case empty
     case longString(Int)

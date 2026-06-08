@@ -71,9 +71,7 @@ final class TrackerCategoryFormViewController: UIViewController {
         }
         
         viewModel.onSaveFailed = { [weak self] error in
-            guard let error = error, !error.isEmpty else {
-                return
-            }
+            guard let error, !error.isEmpty else { return }
             
             self?.showAlert(with: error)
         }
@@ -89,12 +87,7 @@ final class TrackerCategoryFormViewController: UIViewController {
         if submitButton.isEnabled == isEnabled { return }
         
         submitButton.isEnabled = isEnabled
-        
-        if (isEnabled) {
-            submitButton.backgroundColor = .ypBlack
-        } else {
-            submitButton.backgroundColor = .ypGray
-        }
+        submitButton.backgroundColor = isEnabled ? .ypBlack: .ypGray
     }
     
     private func setElements() {
@@ -122,7 +115,7 @@ final class TrackerCategoryFormViewController: UIViewController {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Spacing.space28),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: Constants.titleLableHeight),
+            titleLabel.heightAnchor.constraint(equalToConstant: Constants.titleLabelHeight),
             
             nameInputField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space38),
             nameInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
@@ -172,7 +165,7 @@ extension TrackerCategoryFormViewController: InputFieldViewDelegate {
 private extension TrackerCategoryFormViewController {
     enum Constants {
         static let submitButtonHeight: CGFloat = 60
-        static let titleLableHeight: CGFloat = 22
+        static let titleLabelHeight: CGFloat = 22
         
         static let nameFieldPlaceholder = "Введите название категории"
         static let submitButtonText = "Готово"

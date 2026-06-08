@@ -13,10 +13,8 @@ enum TrackerCategoryStoreError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-        case .duplicateName:
-            return "Категория с таким названием уже существует"
-        case .categoryNotFound:
-            return "Категория не найдена"
+        case .duplicateName: "Категория с таким названием уже существует"
+        case .categoryNotFound: "Категория не найдена"
         }
     }
 }

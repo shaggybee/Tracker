@@ -23,9 +23,10 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
     var onCategoryChanged: Binding<String?>?
     
     // MARK: Private properties
-    private var selectedCategory: String?
-    
+    private lazy var logger = AppLogger.shared
     private var trackerCategoryStore: TrackerCategoryStoreProtocol?
+    
+    private var selectedCategory: String?
     
     // MARK: - Initializers
     convenience init(currentCategory: String?) {
@@ -73,7 +74,9 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
                 
                 onCategoryChanged?(self.selectedCategory)
             }
-        } catch {}
+        } catch {
+            logger.error("[TrackerCategoriesViewModel.deleteCategory] Failed to delete category with name \(name). Error: \(error.localizedDescription)")
+        }
     }
     
     func didSelectCategory(_ categoryName: String) {
