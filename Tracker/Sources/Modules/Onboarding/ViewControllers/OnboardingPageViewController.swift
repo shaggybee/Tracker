@@ -16,11 +16,11 @@ final class OnboardingPageViewController: UIPageViewController {
     private lazy var pages: [UIViewController] = {
         let pagesModels = [
             OnboardingScreenModel(
-                text: Constants.onboardingScreenFirstText,
+                text: NSLocalizedString(L10n.Onboarding.Titles.trackWhatYouWant, comment: ""),
                 image: UIImage(resource: .onboardingScreenFirst)
             ),
             OnboardingScreenModel(
-                text: Constants.onboardingScreenSecondText,
+                text: NSLocalizedString(L10n.Onboarding.Titles.notOnlyWaterAndYoga, comment: ""),
                 image: UIImage(resource: .onboardingScreenSecond)
             )
         ]
@@ -55,7 +55,10 @@ final class OnboardingPageViewController: UIPageViewController {
         button.layer.cornerRadius = Radius.size16
         button.backgroundColor = .ypBlack
         button.setTitleColor(.white, for: .normal)
-        button.setTitle(Constants.completionButtonTitle, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Onboarding.Titles.completionButton, comment: ""),
+            for: .normal
+        )
         
         button.addTarget(
             self,
@@ -163,9 +166,5 @@ extension OnboardingPageViewController: UIPageViewControllerDelegate {
 private extension OnboardingPageViewController {
     enum Constants {
         static let completionButtonHeight: CGFloat = 60
-        
-        static let completionButtonTitle = "Вот это технологии!"
-        static let onboardingScreenFirstText = "Отслеживайте только то, что хотите"
-        static let onboardingScreenSecondText = "Даже если это не литры воды и йога"
     }
 }

@@ -17,7 +17,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         let label = UILabel()
         
         label.font = Font.medium16
-        label.text = Constants.title
+        label.text = NSLocalizedString(L10n.Tracker.createTrackerTitle, comment: "")
         
         return label
     }().forAutoLayout
@@ -25,7 +25,10 @@ final class TrackerTypeSelectionViewController: UIViewController {
     lazy var addHabitButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.addHabitButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Other.habit, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
@@ -39,7 +42,10 @@ final class TrackerTypeSelectionViewController: UIViewController {
     lazy var addIrregularEventButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.addIrregularEventButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Other.irregularEvent, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
@@ -106,9 +112,5 @@ final class TrackerTypeSelectionViewController: UIViewController {
 private extension TrackerTypeSelectionViewController {
     enum Constants {
         static let buttonHeight: CGFloat = 60
-        
-        static let title = "Создание трекера"
-        static let addHabitButtonText = "Привычка"
-        static let addIrregularEventButtonText = "Нерегулярное событие"
     }
 }

@@ -1,0 +1,53 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kislov Vadim on 12.06.2026.
+  
+*/
+
+// Category
+category.title = "Category";
+category.new = "New Category";
+category.edit = "Edit Category";
+category.add = "Add Category";
+category.emptyState = "You can group habits and events by meaning";
+category.deleteConfirmation = "Are you sure you don't need this category?";
+category.enterName = "Enter a category name";
+
+// Tracker
+tracker.newHabitTitle = "New Habit";
+tracker.newIrregularEventTitle = "New Irregular Event";
+tracker.nameFieldPlaceholder = "Enter tracker name";
+tracker.createTrackerTitle = "Create Tracker";
+
+// Trackers
+trackers.title = "Trackers";
+trackers.emptyState = "What shall we track?";
+
+// Onboarding
+onboarding.titles.trackWhatYouWant = "Track only what you want";
+onboarding.titles.notOnlyWaterAndYoga = "Even if it's not liters of water and yoga";
+onboarding.titles.completionButton = "Now that's technology!";
+
+// Actions
+actions.edit = "Edit";
+actions.delete = "Delete";
+actions.cancel = "Cancel";
+actions.create = "Create";
+
+// Statistics
+statistics.title = "Statistics";
+
+// Errors
+errors.somethingWrong = "Something went wrong";
+errors.emptyName = "Name can't be empty";
+
+// Other
+other.ready = "Done";
+other.ok = "OK";
+other.color = "Color";
+other.schedule = "Schedule";
+other.habit = "Habit";
+other.irregularEvent = "Irregular Event";
+other.search = "Search";

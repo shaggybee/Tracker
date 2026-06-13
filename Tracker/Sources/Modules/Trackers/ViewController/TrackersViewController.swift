@@ -50,7 +50,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         label.font = Font.bold34
         label.textColor = .ypBlack
-        label.text = Constants.titleText
+        label.text = NSLocalizedString(L10n.Trackers.title, comment: "")
         
         return label
     }().forAutoLayout
@@ -81,7 +81,9 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }().forAutoLayout
     
     private lazy var emptyStateView: EmptyStateView = {
-        let emptyStateView = EmptyStateView(text: Constants.emptyStateText)
+        let emptyStateView = EmptyStateView(
+            text: NSLocalizedString(L10n.Trackers.emptyState, comment: "")
+        )
         
         emptyStateView.isHidden = true
         
@@ -289,8 +291,5 @@ private extension TrackersViewController {
         static let addTrackerButtonSize: CGFloat = 42
         static let headerSectionHeight: CGFloat = 34
         static let collectionViewCellHeight: CGFloat = 148
-        
-        static let titleText = "Трекеры"
-        static let emptyStateText = "Что будем отслеживать?"
     }
 }

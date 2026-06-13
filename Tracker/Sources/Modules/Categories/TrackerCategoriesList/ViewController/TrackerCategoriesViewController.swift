@@ -19,7 +19,7 @@ final class TrackerCategoriesViewController: UIViewController {
         let label = UILabel()
         
         label.font = Font.medium16
-        label.text = Constants.title
+        label.text = NSLocalizedString(L10n.Category.title, comment: "")
         
         return label
     }().forAutoLayout
@@ -39,7 +39,9 @@ final class TrackerCategoriesViewController: UIViewController {
     }().forAutoLayout
     
     private lazy var emptyStateView: EmptyStateView = {
-        let emptyStateView = EmptyStateView(text: Constants.emptyStateText)
+        let emptyStateView = EmptyStateView(
+            text: NSLocalizedString(L10n.Category.emptyState, comment: "")
+        )
         
         emptyStateView.isHidden = true
         
@@ -49,7 +51,10 @@ final class TrackerCategoriesViewController: UIViewController {
     private lazy var addCategoryButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.addCategoryButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Category.add, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
@@ -191,16 +196,21 @@ final class TrackerCategoriesViewController: UIViewController {
     
     private func showConfirmationDeleteAlert(for categoryName: String) {
         let alert = UIAlertController(
-            title: Constants.deleteConfirmationText,
+            title: NSLocalizedString(L10n.Category.deleteConfirmation, comment: ""),
             message: nil,
             preferredStyle: .actionSheet
         )
         
-        let delete = UIAlertAction(title: Constants.deleteActionTitle, style: .destructive) { [weak self] _ in
+        let delete = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.delete, comment: ""),
+            style: .destructive) { [weak self] _ in
             self?.viewModel?.deleteCategory(with: categoryName)
         }
         
-        let cancel = UIAlertAction(title: Constants.cancelActionTitle, style: .cancel)
+        let cancel = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            style: .cancel
+        )
         
         alert.addAction(delete)
         alert.addAction(cancel)
@@ -266,7 +276,7 @@ extension TrackerCategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             let editAction = UIAction(
-                title: Constants.editActionTitle
+                title: NSLocalizedString(L10n.Actions.edit, comment: "")
             ) { _ in
                 guard let self,
                       let categoryName = self.viewModel?.categories[safe: indexPath.row] else {
@@ -277,7 +287,7 @@ extension TrackerCategoriesViewController: UITableViewDelegate {
             }
             
             let deleteAction = UIAction(
-                title: Constants.deleteActionTitle,
+                title: NSLocalizedString(L10n.Actions.delete, comment: ""),
                 attributes: .destructive
             ) { _ in
                 guard let self,
@@ -299,13 +309,5 @@ private extension TrackerCategoriesViewController {
         static let addCategoryButtonHeight: CGFloat = 60
         static let cellHeight: CGFloat = 75
         static let titleLabelHeight: CGFloat = 22
-        
-        static let title = "Категория"
-        static let addCategoryButtonText = "Добавить категорию"
-        static let emptyStateText = "Привычки и события можно объединить по смыслу"
-        static let editActionTitle = "Редактировать"
-        static let deleteActionTitle = "Удалить"
-        static let cancelActionTitle = "Отменить"
-        static let deleteConfirmationText = "Эта категория точно не нужна?"
     }
 }

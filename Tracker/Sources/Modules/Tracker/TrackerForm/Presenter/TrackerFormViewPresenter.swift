@@ -16,7 +16,9 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     var trackerFormTitle: String {
-        trackerType == .habit ? Constants.newHabitTitle : Constants.newIrregularEventTitle
+        trackerType == .habit
+        ? NSLocalizedString(L10n.Tracker.newHabitTitle, comment: "")
+        : NSLocalizedString(L10n.Tracker.newIrregularEventTitle, comment: "")
     }
     
     // MARK: - Private properties
@@ -73,7 +75,12 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             if (!isTrackerNameInvalid) {
                 isTrackerNameInvalid = true
                 
-                view?.setTrackerNameFieldError(Constants.trackerNameError)
+                view?.setTrackerNameFieldError(
+                    String.localizedStringWithFormat(
+                        NSLocalizedString(L10n.Validation.lengthLimit, comment: ""),
+                        Constants.trackerNameMaxLength
+                    )
+                )
             }
         } else if isTrackerNameInvalid {
             isTrackerNameInvalid = false
@@ -153,7 +160,10 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         
         let sections: [TrackerAppearanceSectionModel] = [
             TrackerAppearanceSectionModel(name: "Emoji", items: emojiItems),
-            TrackerAppearanceSectionModel(name: "Цвет", items: colorItems)
+            TrackerAppearanceSectionModel(
+                name: NSLocalizedString(L10n.Other.color, comment: ""),
+                items: colorItems
+            )
         ]
         
         view?.apply(TrackerAppearanceCollectionModel(sections: sections))
@@ -164,9 +174,5 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
 private extension TrackerFormViewPresenter {
     enum Constants {
         static let trackerNameMaxLength = 38
-        
-        static let newHabitTitle = "Новая привычка"
-        static let newIrregularEventTitle = "Новое нерегулярное событие"
-        static let trackerNameError = "Ограничение \(trackerNameMaxLength) символов"
     }
 }

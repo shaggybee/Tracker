@@ -65,7 +65,10 @@ final class SearchBarView: UIView {
         let button = UIButton(type: .custom)
         
         button.isHidden = true
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            for: .normal
+        )
         button.setTitleColor(.ypBlue, for: .normal)
         
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -79,7 +82,7 @@ final class SearchBarView: UIView {
         return button
     }().forAutoLayout
     
-    init(placeholder: String = "Поиск") {
+    init(placeholder: String = NSLocalizedString(L10n.Other.search, comment: "")) {
         super.init(frame: .zero)
         
         textField.placeholder = placeholder

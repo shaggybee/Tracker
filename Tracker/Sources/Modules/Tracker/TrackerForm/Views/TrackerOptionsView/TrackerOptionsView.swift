@@ -65,9 +65,13 @@ final class TrackerOptionsView: UIView {
             
             switch optionType {
             case .category:
-                optionView.setTitle(with: Constants.titleForCategoryOption)
+                optionView.setTitle(
+                    with: NSLocalizedString(L10n.Category.title, comment: "")
+                )
             case .schedule:
-                optionView.setTitle(with: Constants.titleForScheduleOption)
+                optionView.setTitle(
+                    with: NSLocalizedString(L10n.Other.schedule, comment: "")
+                )
             }
             
             optionView.onTap = { [weak self] in
@@ -106,13 +110,5 @@ final class TrackerOptionsView: UIView {
         separatorView.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
         
         return separatorView.forAutoLayout
-    }
-}
-
-// MARK: - Constants
-private extension TrackerOptionsView {
-    enum Constants {
-        static let titleForCategoryOption: String = "Категория"
-        static let titleForScheduleOption: String = "Расписание"
     }
 }

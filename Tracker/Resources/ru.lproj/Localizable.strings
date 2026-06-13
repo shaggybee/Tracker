@@ -1,0 +1,53 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kislov Vadim on 12.06.2026.
+  
+*/
+
+// Category
+category.title = "Категория";
+category.new = "Новая категория";
+category.edit = "Редактирование категории";
+category.add = "Добавить категорию";
+category.emptyState = "Привычки и события можно объединить по смыслу";
+category.deleteConfirmation = "Эта категория точно не нужна?";
+category.enterName = "Введите название категории";
+
+// Tracker
+tracker.newHabitTitle = "Новая привычка";
+tracker.newIrregularEventTitle = "Новое нерегулярное событие";
+tracker.nameFieldPlaceholder = "Введите название трекера";
+tracker.createTrackerTitle = "Создание трекера";
+
+// Trackers
+trackers.title = "Трекеры";
+trackers.emptyState = "Что будем отслеживать?";
+
+// Onboarding
+onboarding.titles.trackWhatYouWant = "Отслеживайте только то, что хотите";
+onboarding.titles.notOnlyWaterAndYoga = "Даже если это не литры воды и йога";
+onboarding.titles.completionButton = "Вот это технологии!";
+
+// Actions
+actions.edit = "Редактировать";
+actions.delete = "Удалить";
+actions.cancel = "Отменить";
+actions.create = "Создать";
+
+// Statistics
+statistics.title = "Статистика";
+
+// Errors
+errors.somethingWrong = "Что-то пошло не так";
+errors.emptyName = "Название не может быть пустым";
+
+// Other
+other.ready = "Готово";
+other.ok = "Ок";
+other.color = "Цвет";
+other.schedule = "Расписание";
+other.habit = "Привычка";
+other.irregularEvent = "Нерегулярное событие";
+other.search = "Поиск";

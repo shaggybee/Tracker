@@ -14,9 +14,12 @@ enum TrackerCategoryModelError: Error {
     var localizedDescription: String {
         switch self {
         case .empty: 
-            return "Название не может быть пустым"
+            return NSLocalizedString(L10n.Errors.emptyName, comment: "")
         case .longString(let count):
-            return "Ограничение - \(count) символов"
+            return String.localizedStringWithFormat(
+                NSLocalizedString(L10n.Validation.lengthLimit, comment: ""),
+                count
+            )
         }
     }
 }

@@ -1,0 +1,53 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kislov Vadim on 12.06.2026.
+  
+*/
+
+// Category
+category.title = "Kategorie";
+category.new = "Nová kategorie";
+category.edit = "Úprava kategorie";
+category.add = "Přidat kategorii";
+category.emptyState = "Návyky a události můžete seskupovat podle významu";
+category.deleteConfirmation = "Opravdu tuto kategorii nepotřebujete?";
+category.enterName = "Zadejte název kategorie";
+
+// Tracker
+tracker.newHabitTitle = "Nový návyk";
+tracker.newIrregularEventTitle = "Nová nepravidelná událost";
+tracker.nameFieldPlaceholder = "Zadejte název trackeru";
+tracker.createTrackerTitle = "Vytvořit tracker";
+
+// Trackers
+trackers.title = "Trackery";
+trackers.emptyState = "Co budeme sledovat?";
+
+// Onboarding
+onboarding.titles.trackWhatYouWant = "Sledujte jen to, co chcete";
+onboarding.titles.notOnlyWaterAndYoga = "I když to nejsou litry vody a jóga";
+onboarding.titles.completionButton = "To jsou technologie!";
+
+// Actions
+actions.edit = "Upravit";
+actions.delete = "Smazat";
+actions.cancel = "Zrušit";
+actions.create = "Vytvořit";
+
+// Statistics
+statistics.title = "Statistika";
+
+// Errors
+errors.somethingWrong = "Něco se pokazilo";
+errors.emptyName = "Název nesmí být prázdný";
+
+// Other
+other.ready = "Hotovo";
+other.ok = "OK";
+other.color = "Barva";
+other.schedule = "Rozvrh";
+other.habit = "Návyk";
+other.irregularEvent = "Nepravidelná událost";
+other.search = "Hledat";

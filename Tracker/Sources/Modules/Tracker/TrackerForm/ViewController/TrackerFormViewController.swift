@@ -33,7 +33,9 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }().forAutoLayout
     
     private lazy var nameInputField: InputFieldView = {
-        let inputFieldView = InputFieldView(placeholder: Constants.nameFieldPlaceholder)
+        let inputFieldView = InputFieldView(
+            placeholder: NSLocalizedString(L10n.Tracker.nameFieldPlaceholder, comment: "")
+        )
         
         return inputFieldView
     }().forAutoLayout
@@ -41,7 +43,10 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private lazy var submitButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.submitButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Actions.create, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypGray
         button.isEnabled = false
         button.layer.cornerRadius = Radius.size16
@@ -56,7 +61,10 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.cancelButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .white
         button.layer.cornerRadius = Radius.size16
         button.layer.borderWidth = 1
@@ -406,9 +414,5 @@ private extension TrackerFormViewController {
         static let footerButtonsStackViewHeight: CGFloat = 60
         static let headerSectionHeight: CGFloat = 34
         static let rowItemsCount: Int = 6
-        
-        static let nameFieldPlaceholder = "Введите название трекера"
-        static let submitButtonText = "Создать"
-        static let cancelButtonText = "Отменить"
     }
 }
