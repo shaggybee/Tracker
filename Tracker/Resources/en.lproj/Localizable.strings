@@ -17,9 +17,12 @@ category.enterName = "Enter a category name";
 
 // Tracker
 tracker.newHabitTitle = "New Habit";
+tracker.editHabitTitle = "Editing a Habit";
 tracker.newIrregularEventTitle = "New Irregular Event";
+tracker.editIrregularEventTitle = "Editing an irregular event";
 tracker.nameFieldPlaceholder = "Enter tracker name";
 tracker.createTrackerTitle = "Create Tracker";
+tracker.deleteConfirmation = "Are you sure you want to delete the tracker?";
 
 // Trackers
 trackers.title = "Trackers";
@@ -35,6 +38,9 @@ actions.edit = "Edit";
 actions.delete = "Delete";
 actions.cancel = "Cancel";
 actions.create = "Create";
+actions.pin = "Pin";
+actions.unpin = "Unpin";
+actions.save = "Save";
 
 // Statistics
 statistics.title = "Statistics";

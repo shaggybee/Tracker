@@ -20,9 +20,12 @@ enum L10n {
     
     enum Tracker {
         static let newHabitTitle = "tracker.newHabitTitle"
+        static let editHabitTitle = "tracker.editHabitTitle"
         static let newIrregularEventTitle = "tracker.newIrregularEventTitle"
+        static let editIrregularEventTitle = "tracker.editIrregularEventTitle"
         static let nameFieldPlaceholder = "tracker.nameFieldPlaceholder"
         static let createTrackerTitle = "tracker.createTrackerTitle"
+        static let deleteConfirmation = "tracker.deleteConfirmation"
     }
     
     enum Trackers {
@@ -47,6 +50,9 @@ enum L10n {
         static let delete = "actions.delete"
         static let cancel = "actions.cancel"
         static let create = "actions.create"
+        static let pin = "actions.pin"
+        static let unpin = "actions.unpin"
+        static let save = "actions.save"
     }
     
     enum Errors {

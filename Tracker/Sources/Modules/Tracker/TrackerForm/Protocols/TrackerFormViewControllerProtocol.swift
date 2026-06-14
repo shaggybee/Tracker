@@ -10,6 +10,7 @@ import Foundation
 protocol TrackerFormViewControllerProtocol: AnyObject {
     var presenter: TrackerFormViewPresenterProtocol? { get set }
     func setSubmitButtonEnabled(_ isEnabled: Bool)
+    func setTrackerNameField(text: String)
     func setTrackerNameFieldError(_ error: String?)
     func setDescription(for trackerOption: TrackerOptionType, with text: String)
     func apply(_ model: TrackerAppearanceCollectionModel)

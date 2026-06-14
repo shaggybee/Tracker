@@ -16,12 +16,29 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     var trackerFormTitle: String {
-        trackerType == .habit
-        ? NSLocalizedString(L10n.Tracker.newHabitTitle, comment: "")
-        : NSLocalizedString(L10n.Tracker.newIrregularEventTitle, comment: "")
+        if (trackerType == .habit) {
+            return isEditMode
+            ? NSLocalizedString(L10n.Tracker.editHabitTitle, comment: "")
+            : NSLocalizedString(L10n.Tracker.newHabitTitle, comment: "")
+        } else {
+            return isEditMode
+            ? NSLocalizedString(L10n.Tracker.editIrregularEventTitle, comment: "")
+            : NSLocalizedString(L10n.Tracker.newIrregularEventTitle, comment: "")
+        }
+    }
+    
+    var submitButtonTitle: String {
+        return isEditMode
+        ? NSLocalizedString(L10n.Actions.save, comment: "")
+        : NSLocalizedString(L10n.Actions.create, comment: "")
+    }
+    
+    var isEditMode: Bool {
+        trackerModel != nil
     }
     
     // MARK: - Private properties
+    private var trackerModel: Tracker?
     private var trackerType: TrackerType
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
@@ -37,7 +54,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
               let _ = selectedEmoji,
               let _ = selectedColorHex
         else { return false }
-
+        
         switch trackerType {
         case .habit:
             return !selectedDays.isEmpty
@@ -45,11 +62,19 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             return true
         }
     }
-
+    
     private lazy var trackerStore = TrackerStore()
     private lazy var logger = AppLogger.shared
     
     // MARK: - Initializers
+    convenience init(model: Tracker) {
+        self.init(trackerType: model.type)
+        
+        self.trackerModel = model
+        
+        setTrackerFormFields(by: model)
+    }
+    
     init(trackerType: TrackerType) {
         self.trackerType = trackerType
     }
@@ -58,6 +83,9 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     func viewDidLoad() {
         isTrackerNameInvalid = false
         
+        view?.setTrackerNameField(text: trackerName)
+        view?.setDescription(for: .category, with: categoryName ?? "")
+        view?.setDescription(for: .schedule, with: selectedDays.joinedShortNames )
         view?.setSubmitButtonEnabled(canSaveTracker)
         
         buildAndPresentTrackerAppearance()
@@ -106,12 +134,13 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         return Tracker(
-            id: UUID(),
+            id: trackerModel?.id ?? UUID(),
             name: trackerName,
             colorHex: selectedColorHex,
             emoji: selectedEmoji,
             type: trackerType,
             categoryName: categoryName,
+            isPinned: trackerModel?.isPinned ?? false,
             schedule: selectedDays)
     }
     
@@ -137,6 +166,14 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         trackerStore.addTracker(tracker)
+    }
+    
+    func updateTracker() {
+        guard let tracker = getTrackerModel() else {
+            return
+        }
+        
+        trackerStore.updateTracker(tracker)
     }
     
     // MARK: - Private methods
@@ -167,6 +204,15 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         ]
         
         view?.apply(TrackerAppearanceCollectionModel(sections: sections))
+    }
+    
+    private func setTrackerFormFields(by model: Tracker) {
+        trackerType = model.type
+        selectedDays = model.schedule
+        trackerName = model.name
+        categoryName = model.categoryName
+        selectedEmoji = model.emoji
+        selectedColorHex = model.colorHex
     }
 }
 

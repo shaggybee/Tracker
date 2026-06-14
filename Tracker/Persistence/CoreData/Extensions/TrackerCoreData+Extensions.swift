@@ -9,6 +9,6 @@ import Foundation
 
 extension TrackerCoreData {
     @objc var sectionIdentifier: String {
-        categoryName ?? ""
+        pinned ? "Pinned" : categoryName ?? ""
     }
 }

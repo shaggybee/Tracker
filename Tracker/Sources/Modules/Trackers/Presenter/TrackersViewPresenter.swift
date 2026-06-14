@@ -39,6 +39,18 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         }
     }
     
+    func deleteTracker(with id: UUID) {
+        trackerStore.deleteTracker(with: id)
+    }
+    
+    func setTrackerPinned(_ isPinned: Bool, for id: UUID) {
+        trackerStore.setPinned(isPinned, for: id)
+    }
+    
+    func getTracker(with id: UUID) -> Tracker? {
+        trackerStore.getTracker(with: id)
+    }
+    
     // MARK: - Private methods
     private func buildAndPresent(trackerSections: [TrackerCategory]) {
         if trackerSections.isEmpty || trackerSections.allSatisfy({ $0.trackers.isEmpty }) {
@@ -73,6 +85,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             emoji: tracker.emoji,
             colorHex: tracker.colorHex,
             completedDaysCount: completedDaysCount,
+            isPinned: tracker.isPinned,
             availableAction: getAvailableAction(for: tracker.id),
         )
     }

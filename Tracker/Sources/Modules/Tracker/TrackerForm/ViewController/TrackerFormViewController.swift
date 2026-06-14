@@ -44,7 +44,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         let button = UIButton()
         
         button.setTitle(
-            NSLocalizedString(L10n.Actions.create, comment: ""),
+            presenter?.submitButtonTitle ?? "",
             for: .normal
         )
         button.backgroundColor = .ypGray
@@ -151,6 +151,10 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     
     func setTrackerNameFieldError(_ error: String?) {
         nameInputField.setError(error)
+    }
+    
+    func setTrackerNameField(text: String) {
+        nameInputField.setText(text)
     }
     
     func setDescription(for trackerOption: TrackerOptionType, with text: String) {
@@ -308,7 +312,13 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     @objc private func didTapSubmitButton(_ sender: UIButton) {
-        presenter?.createTracker()
+        guard let presenter else { return }
+        
+        if (presenter.isEditMode) {
+            presenter.updateTracker()
+        } else {
+            presenter.createTracker()
+        }
         
         view.window?.rootViewController?.dismiss(animated: true)
     }

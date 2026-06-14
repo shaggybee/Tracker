@@ -74,6 +74,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         
+        collectionView.contentInset = .init(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         collectionView.isHidden = true
         collectionView.showsVerticalScrollIndicator = false
         
@@ -177,8 +178,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
-            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
@@ -225,6 +226,37 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return headerView
     }
     
+    private func getModelForCell(_ cell: UICollectionViewCell) -> TrackerCellModel? {
+        guard let indexPath = trackersCollectionView.indexPath(for: cell),
+              let model = trackersCollectionModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return nil }
+        
+        return model
+    }
+    
+    private func showConfirmationDeleteAlert(for trackerId: UUID) {
+        let alert = UIAlertController(
+            title: NSLocalizedString(L10n.Tracker.deleteConfirmation, comment: ""),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let delete = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.delete, comment: ""),
+            style: .destructive) { [weak self] _ in
+                self?.presenter?.deleteTracker(with: trackerId)
+        }
+        
+        let cancel = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            style: .cancel
+        )
+        
+        alert.addAction(delete)
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
+    }
+    
     @objc private func didChangeDate(_ sender: UIDatePicker) {
         presenter?.setDate(sender.date)
     }
@@ -263,7 +295,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: Constants.collectionViewCellHeight)
+        CGSize(
+            width: ((collectionView.bounds.width - 2 * collectionView.contentInset.left) / 2) - Spacing.space4,
+            height: Constants.collectionViewCellHeight)
     }
     
     func collectionView(
@@ -277,9 +311,32 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - TrackerCollectionViewCellDelegate
 extension TrackersViewController: TrackerCollectionViewCellDelegate {
+    func trackerCollectionViewCellDidTapEdit(_ cell: TrackerCollectionViewCell) {
+        guard let trackerCellModel = getModelForCell(cell),
+              let trackerModel = presenter?.getTracker(with: trackerCellModel.id) else { return }
+        
+        let trackerFormVC = TrackerFormViewController()
+        let presenter = TrackerFormViewPresenter(model: trackerModel)
+        presenter.view = trackerFormVC
+        trackerFormVC.presenter = presenter
+        
+        present(trackerFormVC, animated: true)
+    }
+    
+    func trackerCollectionViewCellDidTapDelete(_ cell: TrackerCollectionViewCell) {
+        guard let trackerCellModel = getModelForCell(cell) else { return }
+
+        showConfirmationDeleteAlert(for: trackerCellModel.id)
+    }
+    
+    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didTogglePin isPinned: Bool) {
+        guard let trackerCellModel = getModelForCell(cell) else { return }
+        
+        presenter?.setTrackerPinned(isPinned, for: trackerCellModel.id)
+    }
+    
     func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
-        guard let indexPath = trackersCollectionView.indexPath(for: cell),
-              let trackerCellModel = trackersCollectionModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return }
+        guard let trackerCellModel = getModelForCell(cell) else { return }
         
         presenter?.setTrackerCompleted(isCompleted, for: trackerCellModel.id)
     }

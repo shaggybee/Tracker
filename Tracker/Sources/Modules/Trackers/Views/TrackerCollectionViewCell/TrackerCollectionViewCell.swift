@@ -25,6 +25,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let view = UIView()
         
         view.layer.cornerRadius = Radius.size16
+        view.isUserInteractionEnabled = true
         
         return view
     }().forAutoLayout
@@ -83,6 +84,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return view
     }().forAutoLayout
     
+    private lazy var pinTrackerImage: UIImageView = {
+        let imageView = UIImageView(image: UIImage(resource: .pin))
+        
+        imageView.isHidden = true
+        
+        return imageView
+    }().forAutoLayout
+    
     private lazy var footerStackView: UIStackView = {
         let stack = UIStackView()
         
@@ -118,6 +127,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         completeButton.backgroundColor = color
         availableActionState = model.availableAction
         
+        pinTrackerImage.isHidden = !model.isPinned
+        
         emojiLabel.text = model.emoji
         emojiContainerView.backgroundColor = .white.withAlphaComponent(0.3)
     }
@@ -125,11 +136,13 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Private methods
     private func setElements() {
         configureCompleteButton()
+        configureCardView()
         
         emojiContainerView.addSubview(emojiLabel)
         
         cardView.addSubview(emojiContainerView)
         cardView.addSubview(trackerNameLabel)
+        cardView.addSubview(pinTrackerImage)
         footerStackView.addArrangedSubview(countLabel)
         footerStackView.addArrangedSubview(completeButton)
         
@@ -154,6 +167,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             emojiLabel.centerXAnchor.constraint(equalTo: emojiContainerView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiContainerView.centerYAnchor),
             
+            pinTrackerImage.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Spacing.space12),
+            pinTrackerImage.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Spacing.space4),
+            
             trackerNameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Spacing.space12),
             trackerNameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Spacing.space12),
             trackerNameLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -Spacing.space12),
@@ -167,6 +183,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             completeButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize),
             completeButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize)
         ])
+    }
+    
+    private func configureCardView() {
+        let menuInteraction = UIContextMenuInteraction(delegate: self)
+        cardView.addInteraction(menuInteraction)
     }
     
     private func configureCompleteButton() {
@@ -192,6 +213,48 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let isCompleted = availableActionState == .complete
         
         delegate?.trackerCollectionViewCell(self, didToggleCompleted: isCompleted)
+    }
+}
+
+// MARK: - UIContextMenuInteractionDelegate
+extension TrackerCollectionViewCell: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else {
+                return nil
+            }
+            
+            let isPinned = !self.pinTrackerImage.isHidden
+            
+            let pinToggleTitle = isPinned
+                ? NSLocalizedString(L10n.Actions.unpin, comment: "")
+                : NSLocalizedString(L10n.Actions.pin, comment: "")
+            
+            let pinToggleAction = UIAction(title: pinToggleTitle) { [weak self] _ in
+                guard let self else { return }
+                
+                self.delegate?.trackerCollectionViewCell(self, didTogglePin: !isPinned)
+            }
+            
+            let editAction = UIAction(
+                title: NSLocalizedString(L10n.Actions.edit, comment: "")
+            ) { [weak self] _ in
+                guard let self else { return }
+                
+                self.delegate?.trackerCollectionViewCellDidTapEdit(self)
+            }
+            
+            let deleteAction = UIAction(
+                title: NSLocalizedString(L10n.Actions.delete, comment: ""),
+                attributes: .destructive
+            ) { [weak self] _ in
+                guard let self else { return }
+
+                self.delegate?.trackerCollectionViewCellDidTapDelete(self)
+            }
+            
+            return UIMenu(children: [pinToggleAction, editAction, deleteAction])
+        }
     }
 }
 

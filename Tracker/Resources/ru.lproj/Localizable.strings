@@ -17,9 +17,12 @@ category.enterName = "Введите название категории";
 
 // Tracker
 tracker.newHabitTitle = "Новая привычка";
+tracker.editHabitTitle = "Редактирование привычки";
 tracker.newIrregularEventTitle = "Новое нерегулярное событие";
+tracker.editIrregularEventTitle = "Редактирование нерегулярного события";
 tracker.nameFieldPlaceholder = "Введите название трекера";
 tracker.createTrackerTitle = "Создание трекера";
+tracker.deleteConfirmation = "Уверены что хотите удалить трекер?";
 
 // Trackers
 trackers.title = "Трекеры";
@@ -35,6 +38,9 @@ actions.edit = "Редактировать";
 actions.delete = "Удалить";
 actions.cancel = "Отменить";
 actions.create = "Создать";
+actions.pin = "Закрепить";
+actions.unpin = "Открепить";
+actions.save = "Сохранить";
 
 // Statistics
 statistics.title = "Статистика";

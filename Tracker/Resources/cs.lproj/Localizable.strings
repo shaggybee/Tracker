@@ -17,9 +17,12 @@ category.enterName = "Zadejte název kategorie";
 
 // Tracker
 tracker.newHabitTitle = "Nový návyk";
+tracker.editHabitTitle = "Úprava návyku";
 tracker.newIrregularEventTitle = "Nová nepravidelná událost";
+tracker.editIrregularEventTitle = "Úprava nepravidelné události";
 tracker.nameFieldPlaceholder = "Zadejte název trackeru";
 tracker.createTrackerTitle = "Vytvořit tracker";
+tracker.deleteConfirmation = "Jste si jisti, že chcete smazat sledovací zařízení?";
 
 // Trackers
 trackers.title = "Trackery";
@@ -35,6 +38,9 @@ actions.edit = "Upravit";
 actions.delete = "Smazat";
 actions.cancel = "Zrušit";
 actions.create = "Vytvořit";
+actions.pin = "Připnout";
+actions.unpin = "Odepnout";
+actions.save = "Uložit";
 
 // Statistics
 statistics.title = "Statistika";
