@@ -58,6 +58,9 @@ enum L10n {
     enum Errors {
         static let somethingWrong = "errors.somethingWrong"
         static let emptyName = "errors.emptyName"
+        static let nameReserved = "errors.nameReserved"
+        static let duplicateName = "errors.duplicateName"
+        static let categoryNotFound = "errors.categoryNotFound"
     }
     
     enum Validation {
@@ -73,5 +76,7 @@ enum L10n {
         static let irregularEvent = "other.irregularEvent"
         static let days = "other.days"
         static let search = "other.search"
+        static let searchEmptyState = "other.searchEmptyState"
+        static let pinned = "other.pinned"
     }
 }

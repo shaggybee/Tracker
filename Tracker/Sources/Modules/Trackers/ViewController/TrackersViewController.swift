@@ -77,16 +77,16 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         collectionView.contentInset = .init(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         collectionView.isHidden = true
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.backgroundColor = .ypWhite
         
         return collectionView
     }().forAutoLayout
     
     private lazy var emptyStateView: EmptyStateView = {
-        let emptyStateView = EmptyStateView(
-            text: NSLocalizedString(L10n.Trackers.emptyState, comment: "")
-        )
+        let emptyStateView = EmptyStateView(model: EmptyStateModel())
         
         emptyStateView.isHidden = true
+        emptyStateView.backgroundColor = .ypWhite
         
         return emptyStateView
     }().forAutoLayout
@@ -112,18 +112,28 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         trackersDataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    func setEmptyStateVisible(_ isVisible: Bool) {
-        emptyStateView.isHidden = !isVisible
-        trackersCollectionView.isHidden = isVisible
+    func setEmptyState(with model: EmptyStateModel?) {
+        guard let model else {
+            emptyStateView.isHidden = true
+            trackersCollectionView.isHidden = false
+            
+            return
+        }
+    
+        emptyStateView.configure(with: model)
+        emptyStateView.isHidden = false
+        trackersCollectionView.isHidden = true
     }
     
     // MARK: - Private methods
     private func setElements() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
+        
+        searchBarView.delegate = self
 
         configureTrackersCollectionView()
 
@@ -288,6 +298,13 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
 // MARK: - UICollectionViewDelegate
 extension TrackersViewController: UICollectionViewDelegate { }
 
+// MARK: - SearchBarViewDelegate
+extension TrackersViewController: SearchBarViewDelegate {
+    func searchBarView(_ searchBarView: SearchBarView, didChange text: String) {
+        presenter?.searchTrackers(with: text)
+    }
+}
+
 // MARK: - UICollectionViewDelegateFlowLayout
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(
@@ -316,7 +333,10 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
               let trackerModel = presenter?.getTracker(with: trackerCellModel.id) else { return }
         
         let trackerFormVC = TrackerFormViewController()
-        let presenter = TrackerFormViewPresenter(model: trackerModel)
+        let presenter = TrackerFormViewPresenter(
+            model: trackerModel,
+            completedDaysCount: trackerCellModel.completedDaysCount
+        )
         presenter.view = trackerFormVC
         trackerFormVC.presenter = presenter
         

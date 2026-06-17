@@ -22,7 +22,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     convenience override init() {
         self.init(context: PersistenceService.shared.context)
     }
-
+    
     init(context: NSManagedObjectContext) {
         self.context = context
         
@@ -171,7 +171,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         ]
         
         // Фильтруем события по следующему принципу:
-        // тип "привычка" - возвращаем, если день недели (текущая выбранная дана) включен в расписание;
+        // тип "привычка" - возвращаем, если день недели (текущая выбранная дата) включен в расписание;
         // тип "нерегулярное событие" - возвращаем, если событие не выполнено или было выполнено и дата
         // выполнения соответствует текущей
         
@@ -183,6 +183,10 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
             return nil
         }
+        
+        let searchPredicate = trackerQuery.search.isEmpty
+        ? NSPredicate(value: true)
+        : NSPredicate(format: "name CONTAINS[cd] %@", trackerQuery.search)
         
         let habitsEventPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "type == %@", TrackerType.habit.rawValue),
@@ -202,11 +206,14 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             completionIrregularEventPredicate
         ])
         
-        fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
-            habitsEventPredicate,
-            irregularEventPredicate
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            searchPredicate,
+            NSCompoundPredicate(orPredicateWithSubpredicates: [
+                habitsEventPredicate,
+                irregularEventPredicate
+            ])
         ])
-
+        
         return fetchRequest
     }
     
@@ -229,7 +236,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         guard let sections = fetchedResultsController?.sections else {
             return []
         }
-
+        
         return sections.compactMap { section in
             guard let objects = section.objects as? [TrackerCoreData] else {
                 return nil
@@ -237,8 +244,14 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             
             let trackers: [Tracker] = objects.compactMap(transformTrackerCoreData)
             
-            return TrackerCategory(name: section.name, trackers: trackers)
+            return TrackerCategory(name: getSectionName(for: section), trackers: trackers)
         }
+    }
+    
+    private func getSectionName(for section: NSFetchedResultsSectionInfo) -> String {
+        section.name == TrackerCategoryStore.Constants.categoryNameReserved
+        ? NSLocalizedString(L10n.Other.pinned, comment: "")
+        : section.name
     }
     
     private func transformTrackerCoreData(_ trackerCoreData: TrackerCoreData) -> Tracker? {

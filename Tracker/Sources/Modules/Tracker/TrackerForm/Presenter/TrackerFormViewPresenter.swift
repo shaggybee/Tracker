@@ -40,6 +40,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     // MARK: - Private properties
     private var trackerModel: Tracker?
     private var trackerType: TrackerType
+    private(set) var completedDaysCount: Int = 0
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
     private(set) var categoryName: String?
@@ -67,10 +68,11 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     private lazy var logger = AppLogger.shared
     
     // MARK: - Initializers
-    convenience init(model: Tracker) {
+    convenience init(model: Tracker, completedDaysCount: Int = 0) {
         self.init(trackerType: model.type)
         
         self.trackerModel = model
+        self.completedDaysCount = completedDaysCount
         
         setTrackerFormFields(by: model)
     }

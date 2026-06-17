@@ -18,7 +18,7 @@ final class TabBarController: UITabBarController {
     private func configTabBar() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
+        appearance.backgroundColor = .ypWhite
         
         tabBar.standardAppearance = appearance
         tabBar.tintColor = .ypBlue

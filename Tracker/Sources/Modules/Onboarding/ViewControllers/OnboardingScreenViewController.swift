@@ -41,7 +41,7 @@ final class OnboardingScreenViewController: UIViewController {
     
     // MARK: - Private methods
     private func setElements() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(backgroundImage)
         view.addSubview(infoLabel)

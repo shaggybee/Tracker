@@ -14,6 +14,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
+    var searchQuery: String = ""
     
     private lazy var trackerRecordStore = TrackerRecordStore()
     private lazy var trackerStore = TrackerStore()
@@ -28,7 +29,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
         
-        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
+        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate, search: searchQuery))
     }
     
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
@@ -51,11 +52,28 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         trackerStore.getTracker(with: id)
     }
     
+    func searchTrackers(with query: String){
+        searchQuery = query
+        
+        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate, search: query))
+    }
+    
     // MARK: - Private methods
     private func buildAndPresent(trackerSections: [TrackerCategory]) {
         if trackerSections.isEmpty || trackerSections.allSatisfy({ $0.trackers.isEmpty }) {
             view?.apply(TrackersCollectionModel(sections: []))
-            view?.setEmptyStateVisible(true)
+            
+            let emptyStateModel = searchQuery.isEmpty
+            ? EmptyStateModel(
+                text: NSLocalizedString(L10n.Trackers.emptyState, comment: ""),
+                image: .emptyState
+            )
+            : EmptyStateModel(
+                text: NSLocalizedString(L10n.Other.searchEmptyState, comment: ""),
+                image: .searchEmptyState
+            )
+            
+            view?.setEmptyState(with: emptyStateModel)
             
             return
         }
@@ -73,7 +91,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             }
         
         view?.apply(TrackersCollectionModel(sections: sections))
-        view?.setEmptyStateVisible(sections.isEmpty)
+        view?.setEmptyState(with: nil)
     }
     
     private func prepareModel(for tracker: Tracker) -> TrackerCellModel {

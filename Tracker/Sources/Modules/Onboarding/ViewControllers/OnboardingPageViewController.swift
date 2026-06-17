@@ -54,7 +54,7 @@ final class OnboardingPageViewController: UIPageViewController {
         
         button.layer.cornerRadius = Radius.size16
         button.backgroundColor = .ypBlack
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.setTitle(
             NSLocalizedString(L10n.Onboarding.Titles.completionButton, comment: ""),
             for: .normal

@@ -48,6 +48,9 @@ statistics.title = "Статистика";
 // Errors
 errors.somethingWrong = "Что-то пошло не так";
 errors.emptyName = "Название не может быть пустым";
+errors.nameReserved = "Указанное название зарезервировано";
+errors.duplicateName = "Категория с таким названием уже существует";
+errors.categoryNotFound = "Категория не найдена";
 
 // Other
 other.ready = "Готово";
@@ -57,3 +60,5 @@ other.schedule = "Расписание";
 other.habit = "Привычка";
 other.irregularEvent = "Нерегулярное событие";
 other.search = "Поиск";
+other.searchEmptyState = "Ничего не найдено";
+other.pinned = "Закрепленные";

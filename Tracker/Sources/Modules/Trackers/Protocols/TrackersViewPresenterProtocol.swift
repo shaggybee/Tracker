@@ -13,6 +13,7 @@ protocol TrackersViewPresenterProtocol {
     func viewDidLoad()
     func setDate(_ selectedDate: Date)
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID)
+    func searchTrackers(with query: String)
     func deleteTracker(with id: UUID)
     func setTrackerPinned(_ isPinned: Bool, for id: UUID)
     func getTracker(with id: UUID) -> Tracker?

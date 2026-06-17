@@ -16,6 +16,6 @@ final class StatisticsViewController: UIViewController {
     
     // MARK: - Private methods
     private func setElements() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
     }
 }

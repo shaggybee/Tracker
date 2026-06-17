@@ -9,4 +9,10 @@ import Foundation
 
 struct TrackerQuery {
     let date: Date
+    let search: String
+    
+    init(date: Date, search: String = "") {
+        self.date = date
+        self.search = search
+    }
 }

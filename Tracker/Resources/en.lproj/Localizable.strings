@@ -48,6 +48,9 @@ statistics.title = "Statistics";
 // Errors
 errors.somethingWrong = "Something went wrong";
 errors.emptyName = "Name can't be empty";
+errors.nameReserved = "The specified name is reserved.";
+errors.duplicateName = "A category with this name already exists.";
+errors.categoryNotFound = "Category not found";
 
 // Other
 other.ready = "Done";
@@ -57,3 +60,5 @@ other.schedule = "Schedule";
 other.habit = "Habit";
 other.irregularEvent = "Irregular Event";
 other.search = "Search";
+other.searchEmptyState = "Nothing found";
+other.pinned = "Pinned";

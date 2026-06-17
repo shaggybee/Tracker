@@ -9,12 +9,14 @@ import Foundation
 
 enum TrackerCategoryStoreError: LocalizedError {
     case duplicateName
+    case nameReserved
     case categoryNotFound
     
     var errorDescription: String? {
         switch self {
-        case .duplicateName: "Категория с таким названием уже существует"
-        case .categoryNotFound: "Категория не найдена"
+        case .nameReserved: NSLocalizedString(L10n.Errors.nameReserved, comment: "")
+        case .duplicateName: NSLocalizedString(L10n.Errors.duplicateName, comment: "")
+        case .categoryNotFound: NSLocalizedString(L10n.Errors.categoryNotFound, comment: "")
         }
     }
 }

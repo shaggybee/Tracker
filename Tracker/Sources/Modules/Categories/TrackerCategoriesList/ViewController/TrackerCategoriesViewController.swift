@@ -40,7 +40,7 @@ final class TrackerCategoriesViewController: UIViewController {
     
     private lazy var emptyStateView: EmptyStateView = {
         let emptyStateView = EmptyStateView(
-            text: NSLocalizedString(L10n.Category.emptyState, comment: "")
+            model: EmptyStateModel(text: NSLocalizedString(L10n.Category.emptyState, comment: ""))
         )
         
         emptyStateView.isHidden = true
@@ -131,7 +131,7 @@ final class TrackerCategoriesViewController: UIViewController {
         configTable()
         updateEmptyState(viewModel?.isCategoriesEmpty ?? true)
         
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(titleLabel)
         view.addSubview(tableView)

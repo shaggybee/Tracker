@@ -34,7 +34,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         
         label.numberOfLines = 2
-        label.textColor = .white
+        label.textColor = .ypWhite
         label.font = Font.medium12
         
         return label
@@ -53,7 +53,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let button = UIButton(type: .custom)
         
         button.clipsToBounds = true
-        button.tintColor = .white
+        button.tintColor = .ypWhite
         button.layer.cornerRadius = Constants.buttonSize / 2
         
         button.addTarget(
@@ -130,7 +130,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         pinTrackerImage.isHidden = !model.isPinned
         
         emojiLabel.text = model.emoji
-        emojiContainerView.backgroundColor = .white.withAlphaComponent(0.3)
+        emojiContainerView.backgroundColor = .ypWhite.withAlphaComponent(0.3)
     }
     
     // MARK: - Private methods

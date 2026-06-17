@@ -48,6 +48,9 @@ statistics.title = "Statistika";
 // Errors
 errors.somethingWrong = "Něco se pokazilo";
 errors.emptyName = "Název nesmí být prázdný";
+errors.nameReserved = "Zadaný název je rezervovaný.";
+errors.duplicateName = "Kategorie s tímto názvem již existuje.";
+errors.categoryNotFound = "Kategorie nenalezena";
 
 // Other
 other.ready = "Hotovo";
@@ -57,3 +60,5 @@ other.schedule = "Rozvrh";
 other.habit = "Návyk";
 other.irregularEvent = "Nepravidelná událost";
 other.search = "Hledat";
+other.searchEmptyState = "Nic nenalezeno";
+other.pinned = "Připnuto";

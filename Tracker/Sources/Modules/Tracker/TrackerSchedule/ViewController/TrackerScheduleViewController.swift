@@ -61,7 +61,7 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
     private func setElements() {
         configTable()
         
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(titleLabel)
         view.addSubview(tableView)

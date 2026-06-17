@@ -30,6 +30,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
             for: .normal
         )
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
             self,
@@ -47,6 +48,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
             for: .normal
         )
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
             self,
@@ -74,7 +76,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     
     // MARK: - Private methods
     private func setElements() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(titleLabel)
         view.addSubview(buttonsStack)
