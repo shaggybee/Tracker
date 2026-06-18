@@ -10,6 +10,7 @@ import Foundation
 protocol TrackersViewPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var selectedDate: Date { get }
+    var currentFilter: TrackersFilter { get set }
     func viewDidLoad()
     func setDate(_ selectedDate: Date)
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID)
@@ -17,4 +18,5 @@ protocol TrackersViewPresenterProtocol {
     func deleteTracker(with id: UUID)
     func setTrackerPinned(_ isPinned: Bool, for id: UUID)
     func getTracker(with id: UUID) -> Tracker?
+    func setFilter(_ filter: TrackersFilter)
 }

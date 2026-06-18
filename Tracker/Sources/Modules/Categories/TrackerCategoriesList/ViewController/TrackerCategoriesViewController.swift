@@ -19,6 +19,7 @@ final class TrackerCategoriesViewController: UIViewController {
         let label = UILabel()
         
         label.font = Font.medium16
+        label.textColor = .ypBlack
         label.text = NSLocalizedString(L10n.Category.title, comment: "")
         
         return label
@@ -56,6 +57,7 @@ final class TrackerCategoriesViewController: UIViewController {
             for: .normal
         )
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
             self,

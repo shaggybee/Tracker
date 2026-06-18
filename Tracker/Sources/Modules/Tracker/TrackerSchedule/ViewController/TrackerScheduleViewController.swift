@@ -41,6 +41,8 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
             for: .normal
         )
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypBlack, for: .disabled)
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
             self,

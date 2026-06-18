@@ -27,6 +27,11 @@ tracker.deleteConfirmation = "Jste si jisti, že chcete smazat sledovací zaří
 // Trackers
 trackers.title = "Trackery";
 trackers.emptyState = "Co budeme sledovat?";
+trackers.filters.title = "Filtry";
+trackers.filters.all = "Všechny sledovací zařízení";
+trackers.filters.allForToday = "Sledovače pro dnešek";
+trackers.filters.completed = "Dokončeno";
+trackers.filters.unfinished = "Nedokončený";
 
 // Onboarding
 onboarding.titles.trackWhatYouWant = "Sledujte jen to, co chcete";

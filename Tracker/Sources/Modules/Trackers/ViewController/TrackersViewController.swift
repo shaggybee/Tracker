@@ -91,6 +91,30 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return emptyStateView
     }().forAutoLayout
     
+    private lazy var filterButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.filled()
+
+        configuration.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: Spacing.space20,
+            bottom: 0,
+            trailing: Spacing.space20
+        )
+
+        button.configuration = configuration
+        
+        button.layer.cornerRadius = Radius.size16
+        button.clipsToBounds = true
+        button.setTitle(NSLocalizedString(L10n.Trackers.Filters.title, comment: ""), for: .normal)
+        button.backgroundColor = .ypBlue
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action:  #selector(didTapFilter(_:)), for: .touchUpInside)
+        
+        return button
+    }().forAutoLayout
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -125,6 +149,16 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         trackersCollectionView.isHidden = true
     }
     
+    func setDate(_ date: Date) {
+        datePicker.setDate(date, animated: true)
+    }
+    
+    func setFilterAvailability(_ isAvailable: Bool) {
+        if filterButton.isHidden == !isAvailable { return }
+        
+        filterButton.isHidden = !isAvailable
+    }
+    
     // MARK: - Private methods
     private func setElements() {
         view.backgroundColor = .ypWhite
@@ -145,6 +179,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         view.addSubview(searchBarView)
         view.addSubview(emptyStateView)
         view.addSubview(trackersCollectionView)
+        view.addSubview(filterButton)
         
         setupConstraints()
     }
@@ -191,6 +226,10 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            filterButton.heightAnchor.constraint(equalToConstant: Constants.filterButtonHeight),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Spacing.space16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
@@ -276,6 +315,21 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         trackerTypeSelectionVC.delegate = self
         present(trackerTypeSelectionVC, animated: true)
+    }
+    
+    @objc private func didTapFilter(_ sender: UIButton) {
+        guard let presenter else { return }
+        
+        let trackersFilterVM = TrackersFilterViewModel(selectedFilter: presenter.currentFilter)
+        
+        let trackersFilterVC = TrackersFilterViewController()
+        
+        trackersFilterVC.initialize(viewModel: trackersFilterVM)
+        trackersFilterVC.onFilterSelect = { [weak self] filter in
+            self?.presenter?.setFilter(filter)
+        }
+        
+        present(trackersFilterVC, animated: true)
     }
     
     @objc private func dismissKeyboard() {
@@ -365,6 +419,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
 // MARK: - Constants
 private extension TrackersViewController {
     enum Constants {
+        static let filterButtonHeight: CGFloat = 50
         static let addTrackerButtonSize: CGFloat = 42
         static let headerSectionHeight: CGFloat = 34
         static let collectionViewCellHeight: CGFloat = 148

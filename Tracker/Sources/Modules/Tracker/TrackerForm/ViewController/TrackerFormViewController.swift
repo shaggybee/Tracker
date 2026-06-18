@@ -59,6 +59,8 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
             for: .normal
         )
         button.backgroundColor = .ypGray
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypBlack, for: .disabled)
         button.isEnabled = false
         button.layer.cornerRadius = Radius.size16
         button.addTarget(

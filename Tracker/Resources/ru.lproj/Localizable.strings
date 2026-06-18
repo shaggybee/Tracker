@@ -27,6 +27,11 @@ tracker.deleteConfirmation = "Уверены что хотите удалить 
 // Trackers
 trackers.title = "Трекеры";
 trackers.emptyState = "Что будем отслеживать?";
+trackers.filters.title = "Фильтры";
+trackers.filters.all = "Все трекеры";
+trackers.filters.allForToday = "Трекеры на сегодня";
+trackers.filters.completed = "Завершённые";
+trackers.filters.unfinished = "Незавершённые";
 
 // Onboarding
 onboarding.titles.trackWhatYouWant = "Отслеживайте только то, что хотите";

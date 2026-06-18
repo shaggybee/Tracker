@@ -130,7 +130,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         pinTrackerImage.isHidden = !model.isPinned
         
         emojiLabel.text = model.emoji
-        emojiContainerView.backgroundColor = .ypWhite.withAlphaComponent(0.3)
+        emojiContainerView.backgroundColor = .white.withAlphaComponent(0.3)
     }
     
     // MARK: - Private methods

@@ -31,6 +31,14 @@ enum L10n {
     enum Trackers {
         static let title = "trackers.title"
         static let emptyState = "trackers.emptyState"
+        
+        enum Filters {
+            static let title = "trackers.filters.title"
+            static let all = "trackers.filters.all"
+            static let allForToday = "trackers.filters.allForToday"
+            static let completed = "trackers.filters.completed"
+            static let unfinished = "trackers.filters.unfinished"
+        }
     }
     
     enum Onboarding {

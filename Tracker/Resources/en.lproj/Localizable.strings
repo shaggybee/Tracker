@@ -27,6 +27,11 @@ tracker.deleteConfirmation = "Are you sure you want to delete the tracker?";
 // Trackers
 trackers.title = "Trackers";
 trackers.emptyState = "What shall we track?";
+trackers.filters.title = "Filters";
+trackers.filters.all = "All trackers";
+trackers.filters.allForToday = "Trackers for today";
+trackers.filters.completed = "Completed";
+trackers.filters.unfinished = "Unfinished";
 
 // Onboarding
 onboarding.titles.trackWhatYouWant = "Track only what you want";

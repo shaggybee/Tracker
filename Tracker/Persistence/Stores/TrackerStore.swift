@@ -170,36 +170,30 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)
         ]
         
-        // Фильтруем события по следующему принципу:
+        // Фильтруем события по следующему принципу (если не выбран фильтр "Завершенные" или "Незавершенные"):
         // тип "привычка" - возвращаем, если день недели (текущая выбранная дата) включен в расписание;
         // тип "нерегулярное событие" - возвращаем, если событие не выполнено или было выполнено и дата
         // выполнения соответствует текущей
         
-        let selectedDate = trackerQuery.date
-        let weekday = Weekdays.getWeekday(for: selectedDate).rawValue
-        
-        let startOfDate = calendar.startOfDay(for: selectedDate)
-        
-        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
-            return nil
-        }
+        let weekday = Weekdays.getWeekday(for: trackerQuery.date).rawValue
         
         let searchPredicate = trackerQuery.search.isEmpty
         ? NSPredicate(value: true)
         : NSPredicate(format: "name CONTAINS[cd] %@", trackerQuery.search)
         
+        guard let completionHabitsEventPredicate = getCompletionHabitsEventPredicate(for: trackerQuery) else {
+            return nil
+        }
+        
         let habitsEventPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "type == %@", TrackerType.habit.rawValue),
-            NSPredicate(format: "(schedule & %d) > 0", weekday)
+            NSPredicate(format: "(schedule & %d) > 0", weekday),
+            completionHabitsEventPredicate
         ])
         
-        let completionIrregularEventPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
-            NSPredicate(format: "completions.@count == 0"),
-            NSPredicate(
-                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
-                startOfDate as CVarArg,
-                nextDay as NSDate)
-        ])
+        guard let completionIrregularEventPredicate = getCompletionIrregularEventPredicate(for: trackerQuery) else {
+            return nil
+        }
         
         let irregularEventPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "type == %@", TrackerType.irregularEvent.rawValue),
@@ -215,6 +209,57 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         ])
         
         return fetchRequest
+    }
+    
+    private func getCompletionHabitsEventPredicate(for trackerQuery: TrackerQuery) -> NSPredicate? {
+        let startOfDate = calendar.startOfDay(for: trackerQuery.date)
+        
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+            return nil
+        }
+
+        switch trackerQuery.filter {
+        case .completed:
+            return NSPredicate(
+                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
+                startOfDate as CVarArg,
+                nextDay as NSDate
+            )
+        case .unfinished:
+            return NSPredicate(
+                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count == 0",
+                startOfDate as CVarArg,
+                nextDay as NSDate
+            )
+        default:
+            return NSPredicate(value: true)
+        }
+    }
+    
+    private func getCompletionIrregularEventPredicate(for trackerQuery: TrackerQuery) -> NSPredicate? {
+        let startOfDate = calendar.startOfDay(for: trackerQuery.date)
+        
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+            return nil
+        }
+        
+        let completionPredicate = NSPredicate(
+            format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
+            startOfDate as CVarArg,
+            nextDay as NSDate
+        )
+        
+        switch trackerQuery.filter {
+        case .completed:
+            return completionPredicate
+        case .unfinished:
+            return NSPredicate(format: "completions.@count == 0")
+        default:
+            return NSCompoundPredicate(orPredicateWithSubpredicates: [
+                NSPredicate(format: "completions.@count == 0"),
+                completionPredicate
+            ])
+        }
     }
     
     private func prepareTrackerCoreData(from model: Tracker, for context: NSManagedObjectContext) -> TrackerCoreData {
