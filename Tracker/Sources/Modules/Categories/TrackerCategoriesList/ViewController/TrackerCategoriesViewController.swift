@@ -206,8 +206,8 @@ final class TrackerCategoriesViewController: UIViewController {
         let delete = UIAlertAction(
             title: NSLocalizedString(L10n.Actions.delete, comment: ""),
             style: .destructive) { [weak self] _ in
-            self?.viewModel?.deleteCategory(with: categoryName)
-        }
+                self?.viewModel?.deleteCategory(with: categoryName)
+            }
         
         let cancel = UIAlertAction(
             title: NSLocalizedString(L10n.Actions.cancel, comment: ""),
@@ -254,8 +254,8 @@ extension TrackerCategoriesViewController: UITableViewDataSource {
         )
         
         cell.separatorInset = indexPath.row == viewModel.categories.count - 1
-            ? UIEdgeInsets(top: 0, left: tableView.bounds.width, bottom: 0, right: 0)
-            : UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
+        ? UIEdgeInsets(top: 0, left: tableView.bounds.width, bottom: 0, right: 0)
+        : UIEdgeInsets(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
         
         return cell
     }
@@ -276,7 +276,9 @@ extension TrackerCategoriesViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+        viewModel?.canManageCategories == false
+        ? nil
+        : UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             let editAction = UIAction(
                 title: NSLocalizedString(L10n.Actions.edit, comment: "")
             ) { _ in

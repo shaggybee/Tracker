@@ -18,6 +18,8 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
     
     var isCategoriesEmpty: Bool { categories.isEmpty }
     
+    let canManageCategories: Bool
+    
     var onCategoriesLoaded: Completion?
     var onShowCategoryForm: Binding<TrackerCategoryFormViewModel>?
     var onCategoryChanged: Binding<String?>?
@@ -29,13 +31,22 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
     private var selectedCategory: String?
     
     // MARK: - Initializers
-    convenience init(currentCategory: String?) {
-        self.init(currentCategory: currentCategory, trackerCategoryStore: TrackerCategoryStore())
+    convenience init(currentCategory: String?, canManageCategories: Bool = true) {
+        self.init(
+            currentCategory: currentCategory,
+            trackerCategoryStore: TrackerCategoryStore(),
+            canManageCategories: canManageCategories
+        )
     }
     
-    init(currentCategory: String?, trackerCategoryStore: TrackerCategoryStoreProtocol) {
+    init(
+        currentCategory: String?,
+        trackerCategoryStore: TrackerCategoryStoreProtocol,
+        canManageCategories: Bool = true
+    ) {
         self.selectedCategory = currentCategory
         self.trackerCategoryStore = trackerCategoryStore
+        self.canManageCategories = canManageCategories
         
         self.trackerCategoryStore?.delegate = self
     }

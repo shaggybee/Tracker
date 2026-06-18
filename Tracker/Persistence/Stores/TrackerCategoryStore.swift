@@ -9,6 +9,11 @@ import CoreData
 
 final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
     
+    // MARK: - Nested types
+    enum Constants {
+        static let categoryNameReserved = "Pinned"
+    }
+    
     // MARK: - Public properies
     var delegate: TrackerCategoryStoreDelegate?
     

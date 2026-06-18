@@ -372,16 +372,21 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
 // MARK: - TrackerOptionsViewDelegate
 extension TrackerFormViewController: TrackerOptionsViewDelegate {
     func trackerOptionsView(_ view: TrackerOptionsView, didSelectOptionWith type: TrackerOptionType) {
+        guard let presenter else { return }
+        
         switch type {
         case .category:
             let trackerCategoriesVC = TrackerCategoriesViewController()
-            let viewModel = TrackerCategoriesViewModel(currentCategory: presenter?.categoryName)
+            let viewModel = TrackerCategoriesViewModel(
+                currentCategory: presenter.categoryName,
+                canManageCategories: !presenter.isEditMode
+            )
             
             trackerCategoriesVC.initialize(viewModel: viewModel)
             trackerCategoriesVC.onTrackerCategoryChanged = { [weak self] categoryName in
                 guard let self else { return }
                 
-                presenter?.didChangeTrackerCategory(categoryName)
+                self.presenter?.didChangeTrackerCategory(categoryName)
                 
                 if ((categoryName ?? "").isEmpty) { return }
                 
@@ -391,7 +396,7 @@ extension TrackerFormViewController: TrackerOptionsViewDelegate {
             present(trackerCategoriesVC, animated: true)
         case .schedule:
             let trackerScheduleVC = TrackerScheduleViewController()
-            let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter?.selectedDays ?? [])
+            let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter.selectedDays)
             
             scheduleViewPresenter.view = trackerScheduleVC
             trackerScheduleVC.delegate = self
