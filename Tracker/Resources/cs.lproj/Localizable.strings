@@ -49,6 +49,11 @@ actions.save = "Uložit";
 
 // Statistics
 statistics.title = "Statistika";
+statistics.emptyState = "Zatím není co analyzovat";
+statistics.bestStreak = "Nejlepší série";
+statistics.perfectDays = "Dokonalé dny";
+statistics.completedTrackers = "Sledovačů dokončeno";
+statistics.averagePerDay = "Průměrná hodnota";
 
 // Errors
 errors.somethingWrong = "Něco se pokazilo";
@@ -67,3 +72,4 @@ other.irregularEvent = "Nepravidelná událost";
 other.search = "Hledat";
 other.searchEmptyState = "Nic nenalezeno";
 other.pinned = "Připnuto";
+

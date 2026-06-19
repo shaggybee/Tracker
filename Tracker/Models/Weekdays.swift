@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Weekdays: OptionSet {
+struct Weekdays: OptionSet, Hashable {
     let rawValue: Int16
     
     static let sunday = Weekdays(rawValue: 1 << 0)

@@ -27,26 +27,34 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
     // MARK: Private properties
     private lazy var logger = AppLogger.shared
     private var trackerCategoryStore: TrackerCategoryStoreProtocol?
+    private var statisticsService: StatisticsServiceProtocol
     
     private var selectedCategory: String?
     
     // MARK: - Initializers
-    convenience init(currentCategory: String?, canManageCategories: Bool = true) {
+    convenience init(
+        currentCategory: String?,
+        canManageCategories: Bool = true,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
         self.init(
             currentCategory: currentCategory,
             trackerCategoryStore: TrackerCategoryStore(),
-            canManageCategories: canManageCategories
+            canManageCategories: canManageCategories,
+            statisticsService: statisticsService
         )
     }
     
     init(
         currentCategory: String?,
         trackerCategoryStore: TrackerCategoryStoreProtocol,
-        canManageCategories: Bool = true
+        canManageCategories: Bool = true,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
     ) {
         self.selectedCategory = currentCategory
         self.trackerCategoryStore = trackerCategoryStore
         self.canManageCategories = canManageCategories
+        self.statisticsService = statisticsService
         
         self.trackerCategoryStore?.delegate = self
     }
@@ -79,6 +87,8 @@ final class TrackerCategoriesViewModel: TrackerCategoriesViewModelProtocol {
     func deleteCategory(with name: String) {
         do {
             try trackerCategoryStore?.deleteCategory(with: name)
+            
+            statisticsService.calculateStatistics()
             
             if name == selectedCategory {
                 self.selectedCategory = nil

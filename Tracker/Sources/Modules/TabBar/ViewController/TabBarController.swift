@@ -39,6 +39,9 @@ final class TabBarController: UITabBarController {
             selectedImage: nil)
         
         let statisticsViewController = StatisticsViewController()
+        
+        statisticsViewController.initialize(viewModel: StatisticsViewModel())
+        
         statisticsViewController.tabBarItem = UITabBarItem(
             title: NSLocalizedString(L10n.Statistics.title, comment: ""),
             image: UIImage(resource: .hareFill),
@@ -49,7 +52,7 @@ final class TabBarController: UITabBarController {
     
     private func addTopBorder() {
         let topLine = UIView(frame: CGRect(x: 0, y: 0, width: tabBar.frame.width, height: 1))
-        topLine.backgroundColor = .ypLightGray
+        topLine.backgroundColor = .black.withAlphaComponent(0.3)
         
         tabBar.addSubview(topLine)
     }

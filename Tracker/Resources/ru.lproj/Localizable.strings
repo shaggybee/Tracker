@@ -49,6 +49,11 @@ actions.save = "Сохранить";
 
 // Statistics
 statistics.title = "Статистика";
+statistics.emptyState = "Анализировать пока нечего";
+statistics.bestStreak = "Лучший период";
+statistics.perfectDays = "Идеальные дни";
+statistics.completedTrackers = "Трекеров завершено";
+statistics.averagePerDay = "Среднее значение";
 
 // Errors
 errors.somethingWrong = "Что-то пошло не так";

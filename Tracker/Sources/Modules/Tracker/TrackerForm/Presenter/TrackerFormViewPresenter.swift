@@ -66,10 +66,15 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     
     private lazy var trackerStore = TrackerStore()
     private lazy var logger = AppLogger.shared
+    private var statisticsService: StatisticsServiceProtocol
     
     // MARK: - Initializers
-    convenience init(model: Tracker, completedDaysCount: Int = 0) {
-        self.init(trackerType: model.type)
+    convenience init(
+        model: Tracker,
+        completedDaysCount: Int = 0,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
+        self.init(trackerType: model.type, statisticsService: statisticsService)
         
         self.trackerModel = model
         self.completedDaysCount = completedDaysCount
@@ -77,8 +82,12 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         setTrackerFormFields(by: model)
     }
     
-    init(trackerType: TrackerType) {
+    init(
+        trackerType: TrackerType,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
         self.trackerType = trackerType
+        self.statisticsService = statisticsService
     }
     
     // MARK: - Public methods
@@ -168,6 +177,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         trackerStore.addTracker(tracker)
+        statisticsService.calculateStatistics()
     }
     
     func updateTracker() {
@@ -176,6 +186,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         trackerStore.updateTracker(tracker)
+        statisticsService.calculateStatistics()
     }
     
     // MARK: - Private methods

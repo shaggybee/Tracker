@@ -66,8 +66,7 @@ final class EmptyStateView: UIView {
             imageView.widthAnchor.constraint(equalToConstant: Constants.imageSize),
             imageView.heightAnchor.constraint(equalToConstant: Constants.imageSize),
             
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])

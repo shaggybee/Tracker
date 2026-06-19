@@ -220,7 +220,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

@@ -51,6 +51,11 @@ enum L10n {
     
     enum Statistics {
         static let title = "statistics.title"
+        static let emptyState = "statistics.emptyState"
+        static let bestStreak = "statistics.bestStreak"
+        static let perfectDays = "statistics.perfectDays"
+        static let completedTrackers = "statistics.completedTrackers"
+        static let averagePerDay = "statistics.averagePerDay"
     }
     
     enum Actions {

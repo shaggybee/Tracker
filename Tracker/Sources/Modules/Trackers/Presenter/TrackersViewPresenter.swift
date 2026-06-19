@@ -32,10 +32,15 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     private lazy var trackerRecordStore = TrackerRecordStore()
     private lazy var trackerStore = TrackerStore()
     private var trackersFilterService: TrackersFilterServiceProtocol
+    private var statisticsService: StatisticsServiceProtocol
     
     // MARK: - Initializers
-    init(trackersFilterService: TrackersFilterServiceProtocol  = TrackersFilterService.shared) {
+    init(
+        trackersFilterService: TrackersFilterServiceProtocol  = TrackersFilterService.shared,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
         self.trackersFilterService = trackersFilterService
+        self.statisticsService = statisticsService
     }
     
     // MARK: - Public methods
@@ -76,10 +81,14 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         } else {
             trackerRecordStore.uncompleteTracker(with: trackerId, for: selectedDate)
         }
+        
+        statisticsService.calculateStatistics()
     }
     
     func deleteTracker(with id: UUID) {
         trackerStore.deleteTracker(with: id)
+        
+        statisticsService.calculateStatistics()
     }
     
     func setTrackerPinned(_ isPinned: Bool, for id: UUID) {

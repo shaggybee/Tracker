@@ -49,6 +49,11 @@ actions.save = "Save";
 
 // Statistics
 statistics.title = "Statistics";
+statistics.emptyState = "Nothing to analyze yet";
+statistics.bestStreak = "Best streak";
+statistics.perfectDays = "Perfect days";
+statistics.completedTrackers = "Trackers completed";
+statistics.averagePerDay = "Average value";
 
 // Errors
 errors.somethingWrong = "Something went wrong";
@@ -67,3 +72,4 @@ other.irregularEvent = "Irregular Event";
 other.search = "Search";
 other.searchEmptyState = "Nothing found";
 other.pinned = "Pinned";
+
