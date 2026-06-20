@@ -55,10 +55,13 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return label
     }().forAutoLayout
     
-    private lazy var searchBarView: SearchBarView = {
-        let textField = SearchBarView()
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
         
-        return textField
+        searchBar.placeholder = NSLocalizedString(L10n.Other.search, comment: "")
+        searchBar.searchBarStyle = .minimal
+        
+        return searchBar
     }().forAutoLayout
     
     private lazy var trackersCollectionView: UICollectionView = {
@@ -74,7 +77,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         
-        collectionView.contentInset = .init(top: 0, left: Spacing.space16, bottom: 0, right: Spacing.space16)
+        collectionView.contentInset = .init(top: 0, left: Spacing.space16, bottom: Constants.filterButtonHeight, right: Spacing.space16)
         collectionView.isHidden = true
         collectionView.showsVerticalScrollIndicator = false
         collectionView.backgroundColor = .ypWhite
@@ -95,14 +98,14 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         let button = UIButton()
         
         var configuration = UIButton.Configuration.filled()
-
+        
         configuration.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: Spacing.space20,
             bottom: 0,
             trailing: Spacing.space20
         )
-
+        
         button.configuration = configuration
         
         button.layer.cornerRadius = Radius.size16
@@ -143,7 +146,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             
             return
         }
-    
+        
         emptyStateView.configure(with: model)
         emptyStateView.isHidden = false
         trackersCollectionView.isHidden = true
@@ -167,16 +170,16 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         
-        searchBarView.delegate = self
-
+        searchBar.delegate = self
+        
         configureTrackersCollectionView()
-
+        
         headerStackView.addArrangedSubview(addTrackerButton)
         headerStackView.addArrangedSubview(datePicker)
         
         view.addSubview(headerStackView)
         view.addSubview(titleLabel)
-        view.addSubview(searchBarView)
+        view.addSubview(searchBar)
         view.addSubview(emptyStateView)
         view.addSubview(trackersCollectionView)
         view.addSubview(filterButton)
@@ -192,7 +195,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         trackersDataSource.supplementaryViewProvider = getHeaderViewProvider
         
         trackersCollectionView.delegate = self
-    
+        
         trackersCollectionView.register(
             TrackerCollectionViewCell.self,
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier)
@@ -214,16 +217,16 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             titleLabel.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: Spacing.separator),
             titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Spacing.space16),
             
-            searchBarView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space8),
-            searchBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            searchBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            searchBar.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space8),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space8),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space8),
             
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            emptyStateView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             emptyStateView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
+            trackersCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: Spacing.space8),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -294,7 +297,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             title: NSLocalizedString(L10n.Actions.delete, comment: ""),
             style: .destructive) { [weak self] _ in
                 self?.presenter?.deleteTracker(with: trackerId)
-        }
+            }
         
         let cancel = UIAlertAction(
             title: NSLocalizedString(L10n.Actions.cancel, comment: ""),
@@ -353,13 +356,6 @@ extension TrackersViewController: TrackerTypeSelectionViewControllerDelegate {
 // MARK: - UICollectionViewDelegate
 extension TrackersViewController: UICollectionViewDelegate { }
 
-// MARK: - SearchBarViewDelegate
-extension TrackersViewController: SearchBarViewDelegate {
-    func searchBarView(_ searchBarView: SearchBarView, didChange text: String) {
-        presenter?.searchTrackers(with: text)
-    }
-}
-
 // MARK: - UICollectionViewDelegateFlowLayout
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(
@@ -400,7 +396,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
     
     func trackerCollectionViewCellDidTapDelete(_ cell: TrackerCollectionViewCell) {
         guard let trackerCellModel = getModelForCell(cell) else { return }
-
+        
         showConfirmationDeleteAlert(for: trackerCellModel.id)
     }
     
@@ -414,6 +410,34 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         guard let trackerCellModel = getModelForCell(cell) else { return }
         
         presenter?.setTrackerCompleted(isCompleted, for: trackerCellModel.id)
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension TrackersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        presenter?.searchTrackers(with: searchText)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        searchBar.setShowsCancelButton(true, animated: true)
+        
+        return true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        
+        presenter?.searchTrackers(with: "")
     }
 }
 
