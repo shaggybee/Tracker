@@ -38,8 +38,8 @@ final class OnboardingPageViewController: UIPageViewController {
         let pageControl = UIPageControl()
         pageControl.currentPage = 0
         
-        pageControl.currentPageIndicatorTintColor = .ypBlack
-        pageControl.pageIndicatorTintColor = .ypBlack.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = .black
+        pageControl.pageIndicatorTintColor = .black.withAlphaComponent(0.3)
         
         pageControl.addTarget(
             self,
@@ -53,8 +53,8 @@ final class OnboardingPageViewController: UIPageViewController {
         let button = UIButton()
         
         button.layer.cornerRadius = Radius.size16
-        button.backgroundColor = .ypBlack
-        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .black
+        button.setTitleColor(.white, for: .normal)
         button.setTitle(
             NSLocalizedString(L10n.Onboarding.Titles.completionButton, comment: ""),
             for: .normal

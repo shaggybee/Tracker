@@ -105,6 +105,8 @@ final class StatisticsViewController: UIViewController {
         for type in StatisticsCardType.allCases {
             let cardView = StatisticsCardView(type: type)
             
+            cardView.heightAnchor.constraint(equalToConstant: Constants.cardViewHeight).isActive = true
+            
             cardsViewStack.addArrangedSubview(cardView)
         }
         
@@ -128,5 +130,11 @@ final class StatisticsViewController: UIViewController {
             cardsViewStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             cardsViewStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16)
         ])
+    }
+}
+
+private extension StatisticsViewController {
+    enum Constants {
+        static let cardViewHeight: CGFloat = 90
     }
 }

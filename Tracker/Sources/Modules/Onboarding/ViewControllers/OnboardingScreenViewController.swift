@@ -14,7 +14,7 @@ final class OnboardingScreenViewController: UIViewController {
         let label = UILabel()
         
         label.font = Font.bold32
-        label.textColor = .ypBlack
+        label.textColor = .black
         label.numberOfLines = 0
         label.textAlignment = .center
         
