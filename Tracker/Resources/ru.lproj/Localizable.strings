@@ -72,3 +72,20 @@ other.irregularEvent = "Нерегулярное событие";
 other.search = "Поиск";
 other.searchEmptyState = "Ничего не найдено";
 other.pinned = "Закрепленные";
+
+// Days
+days.everyday = "Каждый день";
+days.full.monday = "Понедельник";
+days.full.tuesday = "Вторник";
+days.full.wednesday = "Среда";
+days.full.thursday = "Четверг";
+days.full.friday = "Пятница";
+days.full.saturday = "Суббота";
+days.full.sunday = "Воскресенье";
+days.short.monday = "Пн";
+days.short.tuesday = "Вт";
+days.short.wednesday = "Ср";
+days.short.thursday = "Чт";
+days.short.friday = "Пт";
+days.short.saturday = "Сб";
+days.short.sunday = "Вс";

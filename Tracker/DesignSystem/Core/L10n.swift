@@ -92,4 +92,28 @@ enum L10n {
         static let searchEmptyState = "other.searchEmptyState"
         static let pinned = "other.pinned"
     }
+    
+    enum Days {
+        static let everyday = "days.everyday"
+        
+        enum Full {
+            static let monday = "days.full.monday"
+            static let tuesday = "days.full.tuesday"
+            static let wednesday = "days.full.wednesday"
+            static let thursday = "days.full.thursday"
+            static let friday = "days.full.friday"
+            static let saturday = "days.full.saturday"
+            static let sunday = "days.full.sunday"
+        }
+        
+        enum Short {
+            static let monday = "days.short.monday"
+            static let tuesday = "days.short.tuesday"
+            static let wednesday = "days.short.wednesday"
+            static let thursday = "days.short.thursday"
+            static let friday = "days.short.friday"
+            static let saturday = "days.short.saturday"
+            static let sunday = "days.short.sunday"
+        }
+    }
 }

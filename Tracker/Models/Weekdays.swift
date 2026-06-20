@@ -30,13 +30,13 @@ extension Weekdays {
     
     var fullName: String {
         switch self {
-        case .monday:  "Понедельник"
-        case .tuesday: "Вторник"
-        case .wednesday: "Среда"
-        case .thursday: "Четверг"
-        case .friday: "Пятница"
-        case .saturday: "Суббота"
-        case .sunday: "Воскресенье"
+        case .monday: NSLocalizedString(L10n.Days.Full.monday, comment: "")
+        case .tuesday: NSLocalizedString(L10n.Days.Full.tuesday, comment: "")
+        case .wednesday: NSLocalizedString(L10n.Days.Full.wednesday, comment: "")
+        case .thursday: NSLocalizedString(L10n.Days.Full.thursday, comment: "")
+        case .friday: NSLocalizedString(L10n.Days.Full.friday, comment: "")
+        case .saturday: NSLocalizedString(L10n.Days.Full.saturday, comment: "")
+        case .sunday: NSLocalizedString(L10n.Days.Full.sunday, comment: "")
         default: ""
         }
     }
@@ -45,7 +45,7 @@ extension Weekdays {
         let filteredDays = Weekdays.orderedDays.filter { self.contains($0) }
         
         return filteredDays.count == Weekdays.orderedDays.count
-            ? "Каждый день"
+        ? NSLocalizedString(L10n.Days.everyday, comment: "")
             : filteredDays
                 .map { $0.shortName }
                 .joined(separator: ", ")
@@ -53,13 +53,13 @@ extension Weekdays {
     
     private var shortName: String {
         switch self {
-        case .monday:  "Пн"
-        case .tuesday: "Вт"
-        case .wednesday: "Ср"
-        case .thursday: "Чт"
-        case .friday: "Пт"
-        case .saturday: "Сб"
-        case .sunday: "Вс"
+        case .monday: NSLocalizedString(L10n.Days.Short.monday, comment: "")
+        case .tuesday: NSLocalizedString(L10n.Days.Short.tuesday, comment: "")
+        case .wednesday: NSLocalizedString(L10n.Days.Short.wednesday, comment: "")
+        case .thursday: NSLocalizedString(L10n.Days.Short.thursday, comment: "")
+        case .friday: NSLocalizedString(L10n.Days.Short.friday, comment: "")
+        case .saturday: NSLocalizedString(L10n.Days.Short.saturday, comment: "")
+        case .sunday: NSLocalizedString(L10n.Days.Short.sunday, comment: "")
         default: ""
         }
     }

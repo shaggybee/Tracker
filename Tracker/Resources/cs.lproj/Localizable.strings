@@ -73,3 +73,19 @@ other.search = "Hledat";
 other.searchEmptyState = "Nic nenalezeno";
 other.pinned = "Připnuto";
 
+// Days
+days.everyday = "Každý den";
+days.full.monday = "Pondělí";
+days.full.tuesday = "Úterý";
+days.full.wednesday = "Středa";
+days.full.thursday = "Čtvrtek";
+days.full.friday = "Pátek";
+days.full.saturday = "Sobota";
+days.full.sunday = "Neděle";
+days.short.monday = "Po";
+days.short.tuesday = "Út";
+days.short.wednesday = "St";
+days.short.thursday = "Čt";
+days.short.friday = "Pá";
+days.short.saturday = "So";
+days.short.sunday = "Ne";

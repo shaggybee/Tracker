@@ -73,3 +73,19 @@ other.search = "Search";
 other.searchEmptyState = "Nothing found";
 other.pinned = "Pinned";
 
+// Days
+days.everyday = "Every day";
+days.full.monday = "Monday";
+days.full.tuesday = "Tuesday";
+days.full.wednesday = "Wednesday";
+days.full.thursday = "Thursday";
+days.full.friday = "Friday";
+days.full.saturday = "Saturday";
+days.full.sunday = "Sunday";
+days.short.monday = "Mon";
+days.short.tuesday = "Tue";
+days.short.wednesday = "Wed";
+days.short.thursday = "Thu";
+days.short.friday = "Fri";
+days.short.saturday = "Sat";
+days.short.sunday = "Sun";
