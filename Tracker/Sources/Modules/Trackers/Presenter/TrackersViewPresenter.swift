@@ -8,7 +8,6 @@
 import UIKit
 
 final class TrackersViewPresenter: TrackersViewPresenterProtocol {
-    
     // MARK: - Public properties
     weak var view: TrackersViewControllerProtocol?
     
@@ -33,14 +32,17 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
     private lazy var trackerStore = TrackerStore()
     private var trackersFilterService: TrackersFilterServiceProtocol
     private var statisticsService: StatisticsServiceProtocol
+    private var analyticsService: AnalyticsServiceProtocol
     
     // MARK: - Initializers
     init(
         trackersFilterService: TrackersFilterServiceProtocol  = TrackersFilterService.shared,
-        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared,
+        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared
     ) {
         self.trackersFilterService = trackersFilterService
         self.statisticsService = statisticsService
+        self.analyticsService = analyticsService
     }
     
     // MARK: - Public methods
@@ -103,6 +105,34 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         searchQuery = query
         
         trackerStore.loadTrackers(for: getTrackerQueryModel())
+    }
+    
+    func viewDidAppear() {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .open
+        )
+        
+        analyticsService.report(with: analyticsModel)
+    }
+    
+    func viewDidDisappear() {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .close
+        )
+        
+        analyticsService.report(with: analyticsModel)
+    }
+    
+    func didTap(_ item: AnalyticsItem) {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .click,
+            item: item
+        )
+        
+        analyticsService.report(with: analyticsModel)
     }
     
     // MARK: - Private methods

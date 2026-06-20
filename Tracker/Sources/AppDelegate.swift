@@ -6,13 +6,16 @@
 //
 
 import UIKit
+import AppMetricaCore
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // MARK: - UIApplicationDelegate
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        true
+        configureAppMetrica()
+        
+        return true
     }
 
     // MARK: UISceneSession Lifecycle
@@ -21,5 +24,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             name: "Default Configuration",
             sessionRole: connectingSceneSession.role
         )
+    }
+    
+    // MARK: - Private methods
+    private func configureAppMetrica() {
+        if let configuration = AppMetricaConfiguration(apiKey: AnalyticsConstants.apiMetricaKey) {
+            AppMetrica.activate(with: configuration)
+        }
     }
 }

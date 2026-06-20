@@ -125,6 +125,18 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         presenter?.viewDidLoad()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        presenter?.viewDidAppear()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        presenter?.viewDidDisappear()
+    }
+    
     // MARK: - Public methods
     func apply(_ model: TrackersCollectionModel) {
         trackersCollectionModel = model
@@ -315,6 +327,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     }
     
     @objc private func didTapAddTracker(_ sender: UIButton) {
+        presenter?.didTap(.addTrack)
+        
         let trackerTypeSelectionVC = TrackerTypeSelectionViewController()
         
         trackerTypeSelectionVC.delegate = self
@@ -323,6 +337,8 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
     
     @objc private func didTapFilter(_ sender: UIButton) {
         guard let presenter else { return }
+        
+        presenter.didTap(.filter)
         
         let trackersFilterVM = TrackersFilterViewModel(selectedFilter: presenter.currentFilter)
         
@@ -380,6 +396,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerCollectionViewCellDelegate
 extension TrackersViewController: TrackerCollectionViewCellDelegate {
     func trackerCollectionViewCellDidTapEdit(_ cell: TrackerCollectionViewCell) {
+        presenter?.didTap(.edit)
+        
         guard let trackerCellModel = getModelForCell(cell),
               let trackerModel = presenter?.getTracker(with: trackerCellModel.id) else { return }
         
@@ -395,6 +413,8 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
     }
     
     func trackerCollectionViewCellDidTapDelete(_ cell: TrackerCollectionViewCell) {
+        presenter?.didTap(.delete)
+        
         guard let trackerCellModel = getModelForCell(cell) else { return }
         
         showConfirmationDeleteAlert(for: trackerCellModel.id)
@@ -409,6 +429,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
     func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
         guard let trackerCellModel = getModelForCell(cell) else { return }
         
+        presenter?.didTap(.track)
         presenter?.setTrackerCompleted(isCompleted, for: trackerCellModel.id)
     }
 }

@@ -12,6 +12,9 @@ protocol TrackersViewPresenterProtocol {
     var selectedDate: Date { get }
     var currentFilter: TrackersFilter { get set }
     func viewDidLoad()
+    func viewDidAppear()
+    func viewDidDisappear()
+    func didTap(_ item: AnalyticsItem)
     func setDate(_ selectedDate: Date)
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID)
     func searchTrackers(with query: String)
