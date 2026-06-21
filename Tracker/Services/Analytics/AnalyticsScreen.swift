@@ -6,5 +6,5 @@
 //
 
 enum AnalyticsScreen: String {
-    case main
+    case main = "Main"
 }
