@@ -1,0 +1,91 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kislov Vadim on 12.06.2026.
+  
+*/
+
+// Category
+category.title = "Kategorie";
+category.new = "Nová kategorie";
+category.edit = "Úprava kategorie";
+category.add = "Přidat kategorii";
+category.emptyState = "Návyky a události můžete seskupovat podle významu";
+category.deleteConfirmation = "Opravdu tuto kategorii nepotřebujete?";
+category.enterName = "Zadejte název kategorie";
+
+// Tracker
+tracker.newHabitTitle = "Nový návyk";
+tracker.editHabitTitle = "Úprava návyku";
+tracker.newIrregularEventTitle = "Nová nepravidelná událost";
+tracker.editIrregularEventTitle = "Úprava nepravidelné události";
+tracker.nameFieldPlaceholder = "Zadejte název trackeru";
+tracker.createTrackerTitle = "Vytvořit tracker";
+tracker.deleteConfirmation = "Jste si jisti, že chcete smazat sledovací zařízení?";
+
+// Trackers
+trackers.title = "Trackery";
+trackers.emptyState = "Co budeme sledovat?";
+trackers.filters.title = "Filtry";
+trackers.filters.all = "Všechny sledovací zařízení";
+trackers.filters.allForToday = "Sledovače pro dnešek";
+trackers.filters.completed = "Dokončeno";
+trackers.filters.unfinished = "Nedokončený";
+
+// Onboarding
+onboarding.titles.trackWhatYouWant = "Sledujte jen to, co chcete";
+onboarding.titles.notOnlyWaterAndYoga = "I když to nejsou litry vody a jóga";
+onboarding.titles.completionButton = "To jsou technologie!";
+
+// Actions
+actions.edit = "Upravit";
+actions.delete = "Smazat";
+actions.cancel = "Zrušit";
+actions.create = "Vytvořit";
+actions.pin = "Připnout";
+actions.unpin = "Odepnout";
+actions.save = "Uložit";
+
+// Statistics
+statistics.title = "Statistika";
+statistics.emptyState = "Zatím není co analyzovat";
+statistics.bestStreak = "Nejlepší série";
+statistics.perfectDays = "Dokonalé dny";
+statistics.completedTrackers = "Sledovačů dokončeno";
+statistics.averagePerDay = "Průměrná hodnota";
+
+// Errors
+errors.somethingWrong = "Něco se pokazilo";
+errors.emptyName = "Název nesmí být prázdný";
+errors.nameReserved = "Zadaný název je rezervovaný.";
+errors.duplicateName = "Kategorie s tímto názvem již existuje.";
+errors.categoryNotFound = "Kategorie nenalezena";
+
+// Other
+other.ready = "Hotovo";
+other.ok = "OK";
+other.color = "Barva";
+other.schedule = "Rozvrh";
+other.habit = "Návyk";
+other.irregularEvent = "Nepravidelná událost";
+other.search = "Hledat";
+other.searchEmptyState = "Nic nenalezeno";
+other.pinned = "Připnuto";
+
+// Days
+days.everyday = "Každý den";
+days.full.monday = "Pondělí";
+days.full.tuesday = "Úterý";
+days.full.wednesday = "Středa";
+days.full.thursday = "Čtvrtek";
+days.full.friday = "Pátek";
+days.full.saturday = "Sobota";
+days.full.sunday = "Neděle";
+days.short.monday = "Po";
+days.short.tuesday = "Út";
+days.short.wednesday = "St";
+days.short.thursday = "Čt";
+days.short.friday = "Pá";
+days.short.saturday = "So";
+days.short.sunday = "Ne";

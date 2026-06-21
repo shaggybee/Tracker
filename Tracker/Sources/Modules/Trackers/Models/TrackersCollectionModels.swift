@@ -22,5 +22,6 @@ struct TrackerCellModel: Hashable, Sendable {
     let emoji: String?
     let colorHex: String
     let completedDaysCount: Int
+    let isPinned: Bool
     let availableAction: TrackerAvailableAction
 }

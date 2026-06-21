@@ -11,7 +11,11 @@ final class TrackerCategoryFormViewModel: TrackerCategoryFormViewModelProtocol {
     
     // MARK: - Public properties
     var isSaveEnabled: Bool { model.isValidName(categoryName) }
-    var title: String { isEditMode ? Constants.editCategoryTitle : Constants.createCategoryTitle }
+    var title: String {
+        isEditMode
+            ? NSLocalizedString(L10n.Category.new, comment: "")
+            : NSLocalizedString(L10n.Category.edit, comment: "")
+    }
     
     var onSaveEnabledChanged: Binding<Bool>?
     var onCategoryNameErrorChanged: Binding<String?>?
@@ -80,10 +84,3 @@ final class TrackerCategoryFormViewModel: TrackerCategoryFormViewModelProtocol {
     }
 }
 
-// MARK: - Constants
-private extension TrackerCategoryFormViewModel {
-    enum Constants {
-        static let createCategoryTitle = "Новая категория"
-        static let editCategoryTitle = "Редактирование категории"
-    }
-}

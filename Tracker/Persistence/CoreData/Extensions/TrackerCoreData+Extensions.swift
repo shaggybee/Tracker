@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension TrackerCoreData {
+extension TrackerCoreData {    
     @objc var sectionIdentifier: String {
-        categoryName ?? ""
+        pinned ? TrackerCategoryStore.Constants.categoryNameReserved : categoryName ?? ""
     }
 }

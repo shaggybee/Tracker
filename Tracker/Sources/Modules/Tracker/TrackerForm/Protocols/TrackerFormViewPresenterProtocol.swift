@@ -9,11 +9,13 @@ import Foundation
 
 protocol TrackerFormViewPresenterProtocol {
     var view: TrackerFormViewControllerProtocol? { get set }
+    var isEditMode: Bool { get }
+    var completedDaysCount: Int { get }
     var selectedDays: Weekdays { get }
-    var trackerName: String { get }
     var categoryName: String? { get }
     var trackerOptions: [TrackerOptionType] { get }
     var trackerFormTitle: String { get }
+    var submitButtonTitle: String { get }
     func viewDidLoad()
     func didChangeSelectedDays(_ selectedDays: Weekdays)
     func didChangeTrackerName(_ trackerName: String)
@@ -22,4 +24,5 @@ protocol TrackerFormViewPresenterProtocol {
     func didChangeSelectedColor(_ colorHex: String)
     func getTrackerModel() -> Tracker?
     func createTracker()
+    func updateTracker()
 }

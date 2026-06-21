@@ -18,7 +18,7 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
         let label = UILabel()
         
         label.font = Font.medium16
-        label.text = Constants.title
+        label.text = NSLocalizedString(L10n.Other.schedule, comment: "")
         
         return label
     }().forAutoLayout
@@ -36,8 +36,13 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
     private lazy var submitButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.submitButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Other.ready, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypBlack, for: .disabled)
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
             self,
@@ -58,7 +63,7 @@ final class TrackerScheduleViewController: UIViewController, TrackerScheduleView
     private func setElements() {
         configTable()
         
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(titleLabel)
         view.addSubview(tableView)
@@ -157,9 +162,6 @@ private extension TrackerScheduleViewController {
     enum Constants {
         static let submitButtonHeight: CGFloat = 60
         static let cellHeight: CGFloat = 75
-        
-        static let title = "Расписание"
-        static let submitButtonText = "Готово"
     }
 }
 

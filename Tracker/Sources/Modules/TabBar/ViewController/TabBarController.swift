@@ -18,7 +18,7 @@ final class TabBarController: UITabBarController {
     private func configTabBar() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
+        appearance.backgroundColor = .ypWhite
         
         tabBar.standardAppearance = appearance
         tabBar.tintColor = .ypBlue
@@ -34,13 +34,16 @@ final class TabBarController: UITabBarController {
         trackersViewController.presenter = trackersViewPresenter
         
         trackersViewController.tabBarItem = UITabBarItem(
-            title: Constants.trackersBarItemTitle,
+            title: NSLocalizedString(L10n.Trackers.title, comment: ""),
             image: UIImage(resource: .recordCircleFill),
             selectedImage: nil)
         
         let statisticsViewController = StatisticsViewController()
+        
+        statisticsViewController.initialize(viewModel: StatisticsViewModel())
+        
         statisticsViewController.tabBarItem = UITabBarItem(
-            title: Constants.statisticsBarItemTitle,
+            title: NSLocalizedString(L10n.Statistics.title, comment: ""),
             image: UIImage(resource: .hareFill),
             selectedImage: nil)
         
@@ -49,15 +52,8 @@ final class TabBarController: UITabBarController {
     
     private func addTopBorder() {
         let topLine = UIView(frame: CGRect(x: 0, y: 0, width: tabBar.frame.width, height: 1))
-        topLine.backgroundColor = .ypLightGray
+        topLine.backgroundColor = .black.withAlphaComponent(0.3)
         
         tabBar.addSubview(topLine)
-    }
-}
-
-private extension TabBarController {
-    enum Constants {
-        static let statisticsBarItemTitle = "Статистика"
-        static let trackersBarItemTitle = "Трекеры"
     }
 }

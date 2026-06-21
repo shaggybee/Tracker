@@ -10,6 +10,7 @@ import Foundation
 protocol TrackerCategoriesViewModelProtocol {
     var categories: [String] { get set }
     var isCategoriesEmpty: Bool { get }
+    var canManageCategories: Bool { get }
     var onCategoriesLoaded: Completion? { get set }
     var onShowCategoryForm: Binding<TrackerCategoryFormViewModel>? { get set }
     var onCategoryChanged: Binding<String?>? { get set }

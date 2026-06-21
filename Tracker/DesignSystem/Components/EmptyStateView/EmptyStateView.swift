@@ -35,10 +35,10 @@ final class EmptyStateView: UIView {
         return stackView
     }().forAutoLayout
     
-    init(text: String, image: ImageResource = .emptyState) {
+    init(model: EmptyStateModel) {
         super.init(frame: .zero)
         
-        configure(text: text, image: image)
+        configure(with: model)
         setElements()
     }
     
@@ -47,9 +47,9 @@ final class EmptyStateView: UIView {
         nil
     }
     
-    func configure(text: String, image: ImageResource) {
-        label.text = text
-        imageView.image = UIImage(resource: image)
+    func configure(with model: EmptyStateModel) {
+        label.text = model.text
+        imageView.image = UIImage(resource: model.image)
     }
     
     private func setElements() {
@@ -66,8 +66,7 @@ final class EmptyStateView: UIView {
             imageView.widthAnchor.constraint(equalToConstant: Constants.imageSize),
             imageView.heightAnchor.constraint(equalToConstant: Constants.imageSize),
             
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])

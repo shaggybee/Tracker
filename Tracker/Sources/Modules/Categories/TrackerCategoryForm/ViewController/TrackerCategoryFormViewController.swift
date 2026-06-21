@@ -24,7 +24,9 @@ final class TrackerCategoryFormViewController: UIViewController {
     }().forAutoLayout
     
     private lazy var nameInputField: InputFieldView = {
-        let inputFieldView = InputFieldView(placeholder: Constants.nameFieldPlaceholder)
+        let inputFieldView = InputFieldView(
+            placeholder: NSLocalizedString(L10n.Category.enterName, comment: "")
+        )
         
         return inputFieldView
     }().forAutoLayout
@@ -32,8 +34,13 @@ final class TrackerCategoryFormViewController: UIViewController {
     private lazy var submitButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.submitButtonText, for: .normal)
+        button.setTitle(
+            NSLocalizedString(L10n.Other.ready, comment: ""),
+            for: .normal
+        )
         button.backgroundColor = .ypGray
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypBlack, for: .disabled)
         button.isEnabled = false
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
@@ -102,7 +109,7 @@ final class TrackerCategoryFormViewController: UIViewController {
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(titleLabel)
         view.addSubview(nameInputField)
@@ -130,11 +137,13 @@ final class TrackerCategoryFormViewController: UIViewController {
     
     private func showAlert(with error: String) {
         let alert = UIAlertController(
-            title: Constants.Alert.title,
+            title: NSLocalizedString(L10n.Errors.somethingWrong, comment: ""),
             message: error,
             preferredStyle: .alert)
         
-        let action = UIAlertAction(title: Constants.Alert.buttonText, style: .default) { _ in
+        let action = UIAlertAction(
+            title: NSLocalizedString(L10n.Other.ok, comment: ""),
+            style: .default) { _ in
             alert.dismiss(animated: true)
         }
         
@@ -166,13 +175,5 @@ private extension TrackerCategoryFormViewController {
     enum Constants {
         static let submitButtonHeight: CGFloat = 60
         static let titleLabelHeight: CGFloat = 22
-        
-        static let nameFieldPlaceholder = "Введите название категории"
-        static let submitButtonText = "Готово"
-        
-        enum Alert {
-            static let title = "Что-то пошло не так"
-            static let buttonText = "Ok"
-        }
     }
 }

@@ -11,5 +11,9 @@ protocol TrackerRecordStoreProtocol {
     func completeTracker(with trackerId: UUID, for date: Date)
     func uncompleteTracker(with trackerId: UUID, for date: Date)
     func getCompletionsCount(for trackerId: UUID) -> Int
+    func getAllCompletionsCount() -> Int
+    func getPerfectDaysCount() -> Int
+    func getBestCompletionsStreak() -> Int
+    func getAverageCompletionsCount() -> Int
     func checkCompletion(with trackerId: UUID, for date: Date) -> Bool?
 }

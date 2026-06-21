@@ -8,27 +8,73 @@
 import UIKit
 
 final class TrackersViewPresenter: TrackersViewPresenterProtocol {
-    
     // MARK: - Public properties
     weak var view: TrackersViewControllerProtocol?
     
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
+    var searchQuery: String = ""
+    var currentFilter: TrackersFilter {
+        set {
+            trackersFilterService.filter = newValue
+        }
+        get {
+            trackersFilterService.filter
+        }
+    }
     
+    var isFilterApplied: Bool {
+        currentFilter == .completed || currentFilter == .unfinished
+    }
+    
+    // MARK: - Private properties
     private lazy var trackerRecordStore = TrackerRecordStore()
     private lazy var trackerStore = TrackerStore()
+    private var trackersFilterService: TrackersFilterServiceProtocol
+    private var statisticsService: StatisticsServiceProtocol
+    private var analyticsService: AnalyticsServiceProtocol
+    
+    // MARK: - Initializers
+    init(
+        trackersFilterService: TrackersFilterServiceProtocol  = TrackersFilterService.shared,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared,
+        analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared
+    ) {
+        self.trackersFilterService = trackersFilterService
+        self.statisticsService = statisticsService
+        self.analyticsService = analyticsService
+    }
     
     // MARK: - Public methods
     func viewDidLoad() {
         trackerStore.delegate = self
         
-        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
+        trackerStore.loadTrackers(for: getTrackerQueryModel())
     }
     
     func setDate(_ selectedDate: Date) {
         self.selectedDate = selectedDate
         
-        trackerStore.loadTrackers(for: TrackerQuery(date: selectedDate))
+        trackerStore.loadTrackers(for: getTrackerQueryModel())
+    }
+    
+    func setFilter(_ filter: TrackersFilter) {
+        if filter == currentFilter { return }
+        
+        currentFilter = filter
+        
+        switch filter {
+        case .all:
+            setDate(selectedDate)
+        case .allForToday:
+            selectedDate = Date()
+            
+            view?.setDate(selectedDate)
+            
+            setDate(selectedDate)
+        default:
+            trackerStore.loadTrackers(for: getTrackerQueryModel())
+        }
     }
     
     func setTrackerCompleted(_ isCompleted: Bool, for trackerId: UUID) {
@@ -37,13 +83,75 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         } else {
             trackerRecordStore.uncompleteTracker(with: trackerId, for: selectedDate)
         }
+        
+        statisticsService.calculateStatistics()
+    }
+    
+    func deleteTracker(with id: UUID) {
+        trackerStore.deleteTracker(with: id)
+        
+        statisticsService.calculateStatistics()
+    }
+    
+    func setTrackerPinned(_ isPinned: Bool, for id: UUID) {
+        trackerStore.setPinned(isPinned, for: id)
+    }
+    
+    func getTracker(with id: UUID) -> Tracker? {
+        trackerStore.getTracker(with: id)
+    }
+    
+    func searchTrackers(with query: String){
+        searchQuery = query
+        
+        trackerStore.loadTrackers(for: getTrackerQueryModel())
+    }
+    
+    func viewDidAppear() {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .open
+        )
+        
+        analyticsService.report(with: analyticsModel)
+    }
+    
+    func viewDidDisappear() {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .close
+        )
+        
+        analyticsService.report(with: analyticsModel)
+    }
+    
+    func didTap(_ item: AnalyticsItem) {
+        let analyticsModel = AnalyticsModel(
+            screen: .main,
+            event: .click,
+            item: item
+        )
+        
+        analyticsService.report(with: analyticsModel)
     }
     
     // MARK: - Private methods
     private func buildAndPresent(trackerSections: [TrackerCategory]) {
         if trackerSections.isEmpty || trackerSections.allSatisfy({ $0.trackers.isEmpty }) {
             view?.apply(TrackersCollectionModel(sections: []))
-            view?.setEmptyStateVisible(true)
+            
+            let emptyStateModel = searchQuery.isEmpty && !isFilterApplied
+            ? EmptyStateModel(
+                text: NSLocalizedString(L10n.Trackers.emptyState, comment: ""),
+                image: .emptyState
+            )
+            : EmptyStateModel(
+                text: NSLocalizedString(L10n.Other.searchEmptyState, comment: ""),
+                image: .searchEmptyState
+            )
+            
+            view?.setEmptyState(with: emptyStateModel)
+            view?.setFilterAvailability(isFilterApplied)
             
             return
         }
@@ -61,7 +169,8 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             }
         
         view?.apply(TrackersCollectionModel(sections: sections))
-        view?.setEmptyStateVisible(sections.isEmpty)
+        view?.setEmptyState(with: nil)
+        view?.setFilterAvailability(true)
     }
     
     private func prepareModel(for tracker: Tracker) -> TrackerCellModel {
@@ -73,6 +182,7 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
             emoji: tracker.emoji,
             colorHex: tracker.colorHex,
             completedDaysCount: completedDaysCount,
+            isPinned: tracker.isPinned,
             availableAction: getAvailableAction(for: tracker.id),
         )
     }
@@ -88,6 +198,14 @@ final class TrackersViewPresenter: TrackersViewPresenterProtocol {
         }
         
         return isCompleted ? .uncomplete : .complete
+    }
+    
+    private func getTrackerQueryModel() -> TrackerQuery {
+        TrackerQuery(
+            date: selectedDate,
+            search: searchQuery,
+            filter: currentFilter
+        )
     }
 }
 

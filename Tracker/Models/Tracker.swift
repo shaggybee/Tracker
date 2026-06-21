@@ -14,5 +14,6 @@ struct Tracker {
     let emoji: String
     let type: TrackerType
     let categoryName: String
+    let isPinned: Bool
     let schedule: Weekdays
 }

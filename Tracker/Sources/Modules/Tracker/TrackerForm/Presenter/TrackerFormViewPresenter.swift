@@ -16,11 +16,31 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
     }
     
     var trackerFormTitle: String {
-        trackerType == .habit ? Constants.newHabitTitle : Constants.newIrregularEventTitle
+        if (trackerType == .habit) {
+            return isEditMode
+            ? NSLocalizedString(L10n.Tracker.editHabitTitle, comment: "")
+            : NSLocalizedString(L10n.Tracker.newHabitTitle, comment: "")
+        } else {
+            return isEditMode
+            ? NSLocalizedString(L10n.Tracker.editIrregularEventTitle, comment: "")
+            : NSLocalizedString(L10n.Tracker.newIrregularEventTitle, comment: "")
+        }
+    }
+    
+    var submitButtonTitle: String {
+        return isEditMode
+        ? NSLocalizedString(L10n.Actions.save, comment: "")
+        : NSLocalizedString(L10n.Actions.create, comment: "")
+    }
+    
+    var isEditMode: Bool {
+        trackerModel != nil
     }
     
     // MARK: - Private properties
+    private var trackerModel: Tracker?
     private var trackerType: TrackerType
+    private(set) var completedDaysCount: Int = 0
     private(set) var selectedDays: Weekdays = []
     private(set) var trackerName: String = ""
     private(set) var categoryName: String?
@@ -35,7 +55,7 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
               let _ = selectedEmoji,
               let _ = selectedColorHex
         else { return false }
-
+        
         switch trackerType {
         case .habit:
             return !selectedDays.isEmpty
@@ -43,19 +63,40 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             return true
         }
     }
-
+    
     private lazy var trackerStore = TrackerStore()
     private lazy var logger = AppLogger.shared
+    private var statisticsService: StatisticsServiceProtocol
     
     // MARK: - Initializers
-    init(trackerType: TrackerType) {
+    convenience init(
+        model: Tracker,
+        completedDaysCount: Int = 0,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
+        self.init(trackerType: model.type, statisticsService: statisticsService)
+        
+        self.trackerModel = model
+        self.completedDaysCount = completedDaysCount
+        
+        setTrackerFormFields(by: model)
+    }
+    
+    init(
+        trackerType: TrackerType,
+        statisticsService: StatisticsServiceProtocol = StatisticsService.shared
+    ) {
         self.trackerType = trackerType
+        self.statisticsService = statisticsService
     }
     
     // MARK: - Public methods
     func viewDidLoad() {
         isTrackerNameInvalid = false
         
+        view?.setTrackerNameField(text: trackerName)
+        view?.setDescription(for: .category, with: categoryName ?? "")
+        view?.setDescription(for: .schedule, with: selectedDays.joinedShortNames )
         view?.setSubmitButtonEnabled(canSaveTracker)
         
         buildAndPresentTrackerAppearance()
@@ -73,7 +114,12 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
             if (!isTrackerNameInvalid) {
                 isTrackerNameInvalid = true
                 
-                view?.setTrackerNameFieldError(Constants.trackerNameError)
+                view?.setTrackerNameFieldError(
+                    String.localizedStringWithFormat(
+                        NSLocalizedString(L10n.Validation.lengthLimit, comment: ""),
+                        Constants.trackerNameMaxLength
+                    )
+                )
             }
         } else if isTrackerNameInvalid {
             isTrackerNameInvalid = false
@@ -99,12 +145,13 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         return Tracker(
-            id: UUID(),
+            id: trackerModel?.id ?? UUID(),
             name: trackerName,
             colorHex: selectedColorHex,
             emoji: selectedEmoji,
             type: trackerType,
             categoryName: categoryName,
+            isPinned: trackerModel?.isPinned ?? false,
             schedule: selectedDays)
     }
     
@@ -130,6 +177,16 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         }
         
         trackerStore.addTracker(tracker)
+        statisticsService.calculateStatistics()
+    }
+    
+    func updateTracker() {
+        guard let tracker = getTrackerModel() else {
+            return
+        }
+        
+        trackerStore.updateTracker(tracker)
+        statisticsService.calculateStatistics()
     }
     
     // MARK: - Private methods
@@ -153,10 +210,22 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
         
         let sections: [TrackerAppearanceSectionModel] = [
             TrackerAppearanceSectionModel(name: "Emoji", items: emojiItems),
-            TrackerAppearanceSectionModel(name: "Цвет", items: colorItems)
+            TrackerAppearanceSectionModel(
+                name: NSLocalizedString(L10n.Other.color, comment: ""),
+                items: colorItems
+            )
         ]
         
         view?.apply(TrackerAppearanceCollectionModel(sections: sections))
+    }
+    
+    private func setTrackerFormFields(by model: Tracker) {
+        trackerType = model.type
+        selectedDays = model.schedule
+        trackerName = model.name
+        categoryName = model.categoryName
+        selectedEmoji = model.emoji
+        selectedColorHex = model.colorHex
     }
 }
 
@@ -164,9 +233,5 @@ final class TrackerFormViewPresenter: TrackerFormViewPresenterProtocol {
 private extension TrackerFormViewPresenter {
     enum Constants {
         static let trackerNameMaxLength = 38
-        
-        static let newHabitTitle = "Новая привычка"
-        static let newIrregularEventTitle = "Новое нерегулярное событие"
-        static let trackerNameError = "Ограничение \(trackerNameMaxLength) символов"
     }
 }

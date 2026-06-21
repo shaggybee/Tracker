@@ -1,0 +1,91 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kislov Vadim on 12.06.2026.
+  
+*/
+
+// Category
+category.title = "Category";
+category.new = "New Category";
+category.edit = "Edit Category";
+category.add = "Add Category";
+category.emptyState = "You can group habits and events by meaning";
+category.deleteConfirmation = "Are you sure you don't need this category?";
+category.enterName = "Enter a category name";
+
+// Tracker
+tracker.newHabitTitle = "New Habit";
+tracker.editHabitTitle = "Editing a Habit";
+tracker.newIrregularEventTitle = "New Irregular Event";
+tracker.editIrregularEventTitle = "Editing an irregular event";
+tracker.nameFieldPlaceholder = "Enter tracker name";
+tracker.createTrackerTitle = "Create Tracker";
+tracker.deleteConfirmation = "Are you sure you want to delete the tracker?";
+
+// Trackers
+trackers.title = "Trackers";
+trackers.emptyState = "What shall we track?";
+trackers.filters.title = "Filters";
+trackers.filters.all = "All trackers";
+trackers.filters.allForToday = "Trackers for today";
+trackers.filters.completed = "Completed";
+trackers.filters.unfinished = "Unfinished";
+
+// Onboarding
+onboarding.titles.trackWhatYouWant = "Track only what you want";
+onboarding.titles.notOnlyWaterAndYoga = "Even if it's not liters of water and yoga";
+onboarding.titles.completionButton = "Now that's technology!";
+
+// Actions
+actions.edit = "Edit";
+actions.delete = "Delete";
+actions.cancel = "Cancel";
+actions.create = "Create";
+actions.pin = "Pin";
+actions.unpin = "Unpin";
+actions.save = "Save";
+
+// Statistics
+statistics.title = "Statistics";
+statistics.emptyState = "Nothing to analyze yet";
+statistics.bestStreak = "Best streak";
+statistics.perfectDays = "Perfect days";
+statistics.completedTrackers = "Trackers completed";
+statistics.averagePerDay = "Average value";
+
+// Errors
+errors.somethingWrong = "Something went wrong";
+errors.emptyName = "Name can't be empty";
+errors.nameReserved = "The specified name is reserved.";
+errors.duplicateName = "A category with this name already exists.";
+errors.categoryNotFound = "Category not found";
+
+// Other
+other.ready = "Done";
+other.ok = "OK";
+other.color = "Color";
+other.schedule = "Schedule";
+other.habit = "Habit";
+other.irregularEvent = "Irregular Event";
+other.search = "Search";
+other.searchEmptyState = "Nothing found";
+other.pinned = "Pinned";
+
+// Days
+days.everyday = "Every day";
+days.full.monday = "Monday";
+days.full.tuesday = "Tuesday";
+days.full.wednesday = "Wednesday";
+days.full.thursday = "Thursday";
+days.full.friday = "Friday";
+days.full.saturday = "Saturday";
+days.full.sunday = "Sunday";
+days.short.monday = "Mon";
+days.short.tuesday = "Tue";
+days.short.wednesday = "Wed";
+days.short.thursday = "Thu";
+days.short.friday = "Fri";
+days.short.saturday = "Sat";
+days.short.sunday = "Sun";

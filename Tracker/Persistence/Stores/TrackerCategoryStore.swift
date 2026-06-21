@@ -9,6 +9,11 @@ import CoreData
 
 final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
     
+    // MARK: - Nested types
+    enum Constants {
+        static let categoryNameReserved = "Pinned"
+    }
+    
     // MARK: - Public properies
     var delegate: TrackerCategoryStoreDelegate?
     
@@ -33,11 +38,7 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
     
     // MARK: - Public methods
     func createCategory(with name: String) throws {
-        if let _ = try getCategory(with: name) {
-            logger.info("[TrackerCategoryStore.updateCategory] Name for category not uniq")
-            
-            throw TrackerCategoryStoreError.duplicateName
-        }
+        try validateCategoryName(name)
         
         let category = TrackerCategoryCoreData(context: context)
         category.name = name
@@ -51,11 +52,7 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
         }
         
         do {
-            if let _ = try getCategory(with: newName) {
-                logger.info("[TrackerCategoryStore.updateCategory] Name for category not uniq")
-                
-                throw TrackerCategoryStoreError.duplicateName
-            }
+            try validateCategoryName(newName)
             
             guard let category = try getCategory(with: name) else {
                 logger.info("[TrackerCategoryStore.updateCategory] Not found category with name - \(name)")
@@ -149,6 +146,20 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
         }
         
         return preparedCategories
+    }
+    
+    private func validateCategoryName(_ name: String) throws {
+        if name.lowercased() == Constants.categoryNameReserved.lowercased() {
+            logger.info("[TrackerCategoryStore.validateCategoryName] Name for category reserved")
+            
+            throw TrackerCategoryStoreError.nameReserved
+        }
+        
+        guard let _ = try getCategory(with: name) else { return }
+        
+        logger.info("[TrackerCategoryStore.validateCategoryName] Name for category not uniq")
+        
+        throw TrackerCategoryStoreError.duplicateName
     }
 }
 

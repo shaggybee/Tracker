@@ -1,0 +1,119 @@
+//
+//  L10n.swift
+//  Tracker
+//
+//  Created by Kislov Vadim on 12.06.2026.
+//
+
+import Foundation
+
+enum L10n {
+    enum Category {
+        static let title = "category.title"
+        static let add = "category.add"
+        static let new = "category.new"
+        static let edit = "category.edit"
+        static let emptyState = "category.emptyState"
+        static let deleteConfirmation = "category.deleteConfirmation"
+        static let enterName = "category.enterName"
+    }
+    
+    enum Tracker {
+        static let newHabitTitle = "tracker.newHabitTitle"
+        static let editHabitTitle = "tracker.editHabitTitle"
+        static let newIrregularEventTitle = "tracker.newIrregularEventTitle"
+        static let editIrregularEventTitle = "tracker.editIrregularEventTitle"
+        static let nameFieldPlaceholder = "tracker.nameFieldPlaceholder"
+        static let createTrackerTitle = "tracker.createTrackerTitle"
+        static let deleteConfirmation = "tracker.deleteConfirmation"
+    }
+    
+    enum Trackers {
+        static let title = "trackers.title"
+        static let emptyState = "trackers.emptyState"
+        
+        enum Filters {
+            static let title = "trackers.filters.title"
+            static let all = "trackers.filters.all"
+            static let allForToday = "trackers.filters.allForToday"
+            static let completed = "trackers.filters.completed"
+            static let unfinished = "trackers.filters.unfinished"
+        }
+    }
+    
+    enum Onboarding {
+        enum Titles {
+            static let trackWhatYouWant = "onboarding.titles.trackWhatYouWant"
+            static let notOnlyWaterAndYoga = "onboarding.titles.notOnlyWaterAndYoga"
+            static let completionButton = "onboarding.titles.completionButton"
+        }
+    }
+    
+    enum Statistics {
+        static let title = "statistics.title"
+        static let emptyState = "statistics.emptyState"
+        static let bestStreak = "statistics.bestStreak"
+        static let perfectDays = "statistics.perfectDays"
+        static let completedTrackers = "statistics.completedTrackers"
+        static let averagePerDay = "statistics.averagePerDay"
+    }
+    
+    enum Actions {
+        static let edit = "actions.edit"
+        static let delete = "actions.delete"
+        static let cancel = "actions.cancel"
+        static let create = "actions.create"
+        static let pin = "actions.pin"
+        static let unpin = "actions.unpin"
+        static let save = "actions.save"
+    }
+    
+    enum Errors {
+        static let somethingWrong = "errors.somethingWrong"
+        static let emptyName = "errors.emptyName"
+        static let nameReserved = "errors.nameReserved"
+        static let duplicateName = "errors.duplicateName"
+        static let categoryNotFound = "errors.categoryNotFound"
+    }
+    
+    enum Validation {
+        static let lengthLimit = "validation.lengthLimit"
+    }
+    
+    enum Other {
+        static let ready = "other.ready"
+        static let ok = "other.ok"
+        static let color = "other.color"
+        static let schedule = "other.schedule"
+        static let habit = "other.habit"
+        static let irregularEvent = "other.irregularEvent"
+        static let days = "other.days"
+        static let search = "other.search"
+        static let searchEmptyState = "other.searchEmptyState"
+        static let pinned = "other.pinned"
+    }
+    
+    enum Days {
+        static let everyday = "days.everyday"
+        
+        enum Full {
+            static let monday = "days.full.monday"
+            static let tuesday = "days.full.tuesday"
+            static let wednesday = "days.full.wednesday"
+            static let thursday = "days.full.thursday"
+            static let friday = "days.full.friday"
+            static let saturday = "days.full.saturday"
+            static let sunday = "days.full.sunday"
+        }
+        
+        enum Short {
+            static let monday = "days.short.monday"
+            static let tuesday = "days.short.tuesday"
+            static let wednesday = "days.short.wednesday"
+            static let thursday = "days.short.thursday"
+            static let friday = "days.short.friday"
+            static let saturday = "days.short.saturday"
+            static let sunday = "days.short.sunday"
+        }
+    }
+}

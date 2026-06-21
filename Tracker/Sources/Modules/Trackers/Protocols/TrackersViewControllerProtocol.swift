@@ -10,5 +10,7 @@ import Foundation
 protocol TrackersViewControllerProtocol: AnyObject {
     var presenter: TrackersViewPresenterProtocol? { get }
     func apply(_ model: TrackersCollectionModel)
-    func setEmptyStateVisible(_ isVisible: Bool)
+    func setEmptyState(with model: EmptyStateModel?)
+    func setDate(_ date: Date)
+    func setFilterAvailability(_ isAvailable: Bool)
 }

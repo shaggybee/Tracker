@@ -22,7 +22,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     convenience override init() {
         self.init(context: PersistenceService.shared.context)
     }
-
+    
     init(context: NSManagedObjectContext) {
         self.context = context
         
@@ -64,7 +64,80 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         }
     }
     
+    func updateTracker(_ updatedTracker: Tracker) {
+        do {
+            guard let currentTracker = try findTracker(by: updatedTracker.id),
+                  let category = try findCategory(by: updatedTracker.categoryName) else {
+                return
+            }
+            
+            currentTracker.name = updatedTracker.name
+            currentTracker.schedule = updatedTracker.schedule.rawValue
+            currentTracker.colorHex = updatedTracker.colorHex
+            currentTracker.emoji = updatedTracker.emoji
+            
+            if (updatedTracker.name != currentTracker.categoryName) {
+                currentTracker.categoryName = updatedTracker.categoryName
+                currentTracker.category = category
+            }
+            
+            try context.save()
+        } catch {
+            logger.error("[TrackerStore.updateTracker] Failed to update tracker with id - \(updatedTracker.id). Error: \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteTracker(with id: UUID) {
+        do {
+            guard let tracker = try findTracker(by: id) else {
+                return
+            }
+            
+            context.delete(tracker)
+            
+            try context.save()
+        } catch {
+            logger.error("[TrackerStore.deleteTracker] Failed to delete tracker. Error: \(error.localizedDescription)")
+        }
+    }
+    
+    func setPinned(_ isPinned: Bool, for id: UUID) {
+        do {
+            guard let tracker = try findTracker(by: id) else {
+                return
+            }
+            
+            tracker.pinned = isPinned
+            
+            try context.save()
+        } catch {
+            logger.error("[TrackerStore.setPinned] Failed change pinned state for tracker. Error: \(error.localizedDescription)")
+        }
+    }
+    
+    func getTracker(with id: UUID) -> Tracker? {
+        do {
+            guard let tracker = try findTracker(by: id) else {
+                return nil
+            }
+            
+            return transformTrackerCoreData(tracker)
+        } catch {
+            logger.error("[TrackerStore.setPinned] Failed get tracker with id - \(id). Error: \(error.localizedDescription)")
+            
+            return nil
+        }
+    }
+    
     // MARK: - Private methods
+    private func findTracker(by id: UUID) throws -> TrackerCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        return try context.fetch(fetchRequest).first
+    }
+    
     private func findCategory(by name: String) throws -> TrackerCategoryCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "name == %@", name)
@@ -92,48 +165,101 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
     private func getTrackerFetchRequest(for trackerQuery: TrackerQuery) -> NSFetchRequest<TrackerCoreData>? {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
+            NSSortDescriptor(keyPath: \TrackerCoreData.pinned, ascending: false),
             NSSortDescriptor(keyPath: \TrackerCoreData.categoryName, ascending: true),
             NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)
         ]
         
-        // Фильтруем события по следующему принципу:
-        // тип "привычка" - возвращаем, если день недели (текущая выбранная дана) включен в расписание;
+        // Фильтруем события по следующему принципу (если не выбран фильтр "Завершенные" или "Незавершенные"):
+        // тип "привычка" - возвращаем, если день недели (текущая выбранная дата) включен в расписание;
         // тип "нерегулярное событие" - возвращаем, если событие не выполнено или было выполнено и дата
         // выполнения соответствует текущей
         
-        let selectedDate = trackerQuery.date
-        let weekday = Weekdays.getWeekday(for: selectedDate).rawValue
+        let weekday = Weekdays.getWeekday(for: trackerQuery.date).rawValue
         
-        let startOfDate = calendar.startOfDay(for: selectedDate)
+        let searchPredicate = trackerQuery.search.isEmpty
+        ? NSPredicate(value: true)
+        : NSPredicate(format: "name CONTAINS[cd] %@", trackerQuery.search)
         
-        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+        guard let completionHabitsEventPredicate = getCompletionHabitsEventPredicate(for: trackerQuery) else {
             return nil
         }
         
         let habitsEventPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "type == %@", TrackerType.habit.rawValue),
-            NSPredicate(format: "(schedule & %d) > 0", weekday)
+            NSPredicate(format: "(schedule & %d) > 0", weekday),
+            completionHabitsEventPredicate
         ])
         
-        let completionIrregularEventPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
-            NSPredicate(format: "completions.@count == 0"),
-            NSPredicate(
-                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
-                startOfDate as CVarArg,
-                nextDay as NSDate)
-        ])
+        guard let completionIrregularEventPredicate = getCompletionIrregularEventPredicate(for: trackerQuery) else {
+            return nil
+        }
         
         let irregularEventPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "type == %@", TrackerType.irregularEvent.rawValue),
             completionIrregularEventPredicate
         ])
         
-        fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
-            habitsEventPredicate,
-            irregularEventPredicate
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            searchPredicate,
+            NSCompoundPredicate(orPredicateWithSubpredicates: [
+                habitsEventPredicate,
+                irregularEventPredicate
+            ])
         ])
-
+        
         return fetchRequest
+    }
+    
+    private func getCompletionHabitsEventPredicate(for trackerQuery: TrackerQuery) -> NSPredicate? {
+        let startOfDate = calendar.startOfDay(for: trackerQuery.date)
+        
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+            return nil
+        }
+
+        switch trackerQuery.filter {
+        case .completed:
+            return NSPredicate(
+                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
+                startOfDate as CVarArg,
+                nextDay as NSDate
+            )
+        case .unfinished:
+            return NSPredicate(
+                format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count == 0",
+                startOfDate as CVarArg,
+                nextDay as NSDate
+            )
+        default:
+            return NSPredicate(value: true)
+        }
+    }
+    
+    private func getCompletionIrregularEventPredicate(for trackerQuery: TrackerQuery) -> NSPredicate? {
+        let startOfDate = calendar.startOfDay(for: trackerQuery.date)
+        
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDate) else {
+            return nil
+        }
+        
+        let completionPredicate = NSPredicate(
+            format: "SUBQUERY(completions, $c, $c.date >= %@ AND $c.date < %@).@count > 0",
+            startOfDate as CVarArg,
+            nextDay as NSDate
+        )
+        
+        switch trackerQuery.filter {
+        case .completed:
+            return completionPredicate
+        case .unfinished:
+            return NSPredicate(format: "completions.@count == 0")
+        default:
+            return NSCompoundPredicate(orPredicateWithSubpredicates: [
+                NSPredicate(format: "completions.@count == 0"),
+                completionPredicate
+            ])
+        }
     }
     
     private func prepareTrackerCoreData(from model: Tracker, for context: NSManagedObjectContext) -> TrackerCoreData {
@@ -146,6 +272,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         tracker.type = model.type.rawValue
         tracker.categoryName = model.categoryName
         tracker.schedule = model.schedule.rawValue
+        tracker.pinned = model.isPinned
         
         return tracker
     }
@@ -154,7 +281,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
         guard let sections = fetchedResultsController?.sections else {
             return []
         }
-
+        
         return sections.compactMap { section in
             guard let objects = section.objects as? [TrackerCoreData] else {
                 return nil
@@ -162,8 +289,14 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             
             let trackers: [Tracker] = objects.compactMap(transformTrackerCoreData)
             
-            return TrackerCategory(name: section.name, trackers: trackers)
+            return TrackerCategory(name: getSectionName(for: section), trackers: trackers)
         }
+    }
+    
+    private func getSectionName(for section: NSFetchedResultsSectionInfo) -> String {
+        section.name == TrackerCategoryStore.Constants.categoryNameReserved
+        ? NSLocalizedString(L10n.Other.pinned, comment: "")
+        : section.name
     }
     
     private func transformTrackerCoreData(_ trackerCoreData: TrackerCoreData) -> Tracker? {
@@ -181,6 +314,7 @@ final class TrackerStore: NSObject, TrackerStoreProtocol {
             emoji: emoji,
             type: type,
             categoryName: categoryName,
+            isPinned: trackerCoreData.pinned,
             schedule: Weekdays(rawValue: trackerCoreData.schedule))
     }
 }

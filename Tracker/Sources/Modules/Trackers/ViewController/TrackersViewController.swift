@@ -50,15 +50,18 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         label.font = Font.bold34
         label.textColor = .ypBlack
-        label.text = Constants.titleText
+        label.text = NSLocalizedString(L10n.Trackers.title, comment: "")
         
         return label
     }().forAutoLayout
     
-    private lazy var searchBarView: SearchBarView = {
-        let textField = SearchBarView()
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
         
-        return textField
+        searchBar.placeholder = NSLocalizedString(L10n.Other.search, comment: "")
+        searchBar.searchBarStyle = .minimal
+        
+        return searchBar
     }().forAutoLayout
     
     private lazy var trackersCollectionView: UICollectionView = {
@@ -74,18 +77,45 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
         
+        collectionView.contentInset = .init(top: 0, left: Spacing.space16, bottom: Constants.filterButtonHeight, right: Spacing.space16)
         collectionView.isHidden = true
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.backgroundColor = .ypWhite
         
         return collectionView
     }().forAutoLayout
     
     private lazy var emptyStateView: EmptyStateView = {
-        let emptyStateView = EmptyStateView(text: Constants.emptyStateText)
+        let emptyStateView = EmptyStateView(model: EmptyStateModel())
         
         emptyStateView.isHidden = true
+        emptyStateView.backgroundColor = .ypWhite
         
         return emptyStateView
+    }().forAutoLayout
+    
+    private lazy var filterButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.filled()
+        
+        configuration.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: Spacing.space20,
+            bottom: 0,
+            trailing: Spacing.space20
+        )
+        
+        button.configuration = configuration
+        
+        button.layer.cornerRadius = Radius.size16
+        button.clipsToBounds = true
+        button.setTitle(NSLocalizedString(L10n.Trackers.Filters.title, comment: ""), for: .normal)
+        button.backgroundColor = .ypBlue
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action:  #selector(didTapFilter(_:)), for: .touchUpInside)
+        
+        return button
     }().forAutoLayout
     
     override func viewDidLoad() {
@@ -93,6 +123,18 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         
         setElements()
         presenter?.viewDidLoad()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        presenter?.viewDidAppear()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        presenter?.viewDidDisappear()
     }
     
     // MARK: - Public methods
@@ -109,29 +151,50 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         trackersDataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    func setEmptyStateVisible(_ isVisible: Bool) {
-        emptyStateView.isHidden = !isVisible
-        trackersCollectionView.isHidden = isVisible
+    func setEmptyState(with model: EmptyStateModel?) {
+        guard let model else {
+            emptyStateView.isHidden = true
+            trackersCollectionView.isHidden = false
+            
+            return
+        }
+        
+        emptyStateView.configure(with: model)
+        emptyStateView.isHidden = false
+        trackersCollectionView.isHidden = true
+    }
+    
+    func setDate(_ date: Date) {
+        datePicker.setDate(date, animated: true)
+    }
+    
+    func setFilterAvailability(_ isAvailable: Bool) {
+        if filterButton.isHidden == !isAvailable { return }
+        
+        filterButton.isHidden = !isAvailable
     }
     
     // MARK: - Private methods
     private func setElements() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
-
+        
+        searchBar.delegate = self
+        
         configureTrackersCollectionView()
-
+        
         headerStackView.addArrangedSubview(addTrackerButton)
         headerStackView.addArrangedSubview(datePicker)
         
         view.addSubview(headerStackView)
         view.addSubview(titleLabel)
-        view.addSubview(searchBarView)
+        view.addSubview(searchBar)
         view.addSubview(emptyStateView)
         view.addSubview(trackersCollectionView)
+        view.addSubview(filterButton)
         
         setupConstraints()
     }
@@ -144,7 +207,7 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         trackersDataSource.supplementaryViewProvider = getHeaderViewProvider
         
         trackersCollectionView.delegate = self
-    
+        
         trackersCollectionView.register(
             TrackerCollectionViewCell.self,
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier)
@@ -166,18 +229,23 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
             titleLabel.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: Spacing.separator),
             titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Spacing.space16),
             
-            searchBarView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space8),
-            searchBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            searchBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            searchBar.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.space8),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space8),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space8),
             
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
-            emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            trackersCollectionView.topAnchor.constraint(equalTo: searchBarView.bottomAnchor, constant: Spacing.space8),
-            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
-            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
+            trackersCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: Spacing.space8),
+            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            filterButton.heightAnchor.constraint(equalToConstant: Constants.filterButtonHeight),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Spacing.space16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
@@ -223,15 +291,65 @@ final class TrackersViewController: UIViewController, TrackersViewControllerProt
         return headerView
     }
     
+    private func getModelForCell(_ cell: UICollectionViewCell) -> TrackerCellModel? {
+        guard let indexPath = trackersCollectionView.indexPath(for: cell),
+              let model = trackersCollectionModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return nil }
+        
+        return model
+    }
+    
+    private func showConfirmationDeleteAlert(for trackerId: UUID) {
+        let alert = UIAlertController(
+            title: NSLocalizedString(L10n.Tracker.deleteConfirmation, comment: ""),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let delete = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.delete, comment: ""),
+            style: .destructive) { [weak self] _ in
+                self?.presenter?.deleteTracker(with: trackerId)
+            }
+        
+        let cancel = UIAlertAction(
+            title: NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            style: .cancel
+        )
+        
+        alert.addAction(delete)
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
+    }
+    
     @objc private func didChangeDate(_ sender: UIDatePicker) {
         presenter?.setDate(sender.date)
     }
     
     @objc private func didTapAddTracker(_ sender: UIButton) {
+        presenter?.didTap(.addTrack)
+        
         let trackerTypeSelectionVC = TrackerTypeSelectionViewController()
         
         trackerTypeSelectionVC.delegate = self
         present(trackerTypeSelectionVC, animated: true)
+    }
+    
+    @objc private func didTapFilter(_ sender: UIButton) {
+        guard let presenter else { return }
+        
+        presenter.didTap(.filter)
+        
+        let trackersFilterVM = TrackersFilterViewModel(selectedFilter: presenter.currentFilter)
+        
+        let trackersFilterVC = TrackersFilterViewController()
+        
+        trackersFilterVC.initialize(viewModel: trackersFilterVM)
+        trackersFilterVC.onFilterSelect = { [weak self] filter in
+            self?.presenter?.setFilter(filter)
+        }
+        
+        present(trackersFilterVC, animated: true)
     }
     
     @objc private func dismissKeyboard() {
@@ -261,7 +379,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        CGSize(width: (collectionView.bounds.width / 2) - Spacing.space4, height: Constants.collectionViewCellHeight)
+        CGSize(
+            width: ((collectionView.bounds.width - 2 * collectionView.contentInset.left) / 2) - Spacing.space4,
+            height: Constants.collectionViewCellHeight)
     }
     
     func collectionView(
@@ -275,22 +395,79 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - TrackerCollectionViewCellDelegate
 extension TrackersViewController: TrackerCollectionViewCellDelegate {
-    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
-        guard let indexPath = trackersCollectionView.indexPath(for: cell),
-              let trackerCellModel = trackersCollectionModel.sections[safe: indexPath.section]?.trackers[safe: indexPath.row] else { return }
+    func trackerCollectionViewCellDidTapEdit(_ cell: TrackerCollectionViewCell) {
+        presenter?.didTap(.edit)
         
+        guard let trackerCellModel = getModelForCell(cell),
+              let trackerModel = presenter?.getTracker(with: trackerCellModel.id) else { return }
+        
+        let trackerFormVC = TrackerFormViewController()
+        let presenter = TrackerFormViewPresenter(
+            model: trackerModel,
+            completedDaysCount: trackerCellModel.completedDaysCount
+        )
+        presenter.view = trackerFormVC
+        trackerFormVC.presenter = presenter
+        
+        present(trackerFormVC, animated: true)
+    }
+    
+    func trackerCollectionViewCellDidTapDelete(_ cell: TrackerCollectionViewCell) {
+        presenter?.didTap(.delete)
+        
+        guard let trackerCellModel = getModelForCell(cell) else { return }
+        
+        showConfirmationDeleteAlert(for: trackerCellModel.id)
+    }
+    
+    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didTogglePin isPinned: Bool) {
+        guard let trackerCellModel = getModelForCell(cell) else { return }
+        
+        presenter?.setTrackerPinned(isPinned, for: trackerCellModel.id)
+    }
+    
+    func trackerCollectionViewCell(_ cell: TrackerCollectionViewCell, didToggleCompleted isCompleted: Bool) {
+        guard let trackerCellModel = getModelForCell(cell) else { return }
+        
+        presenter?.didTap(.track)
         presenter?.setTrackerCompleted(isCompleted, for: trackerCellModel.id)
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension TrackersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        presenter?.searchTrackers(with: searchText)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        searchBar.setShowsCancelButton(true, animated: true)
+        
+        return true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        
+        presenter?.searchTrackers(with: "")
     }
 }
 
 // MARK: - Constants
 private extension TrackersViewController {
     enum Constants {
+        static let filterButtonHeight: CGFloat = 50
         static let addTrackerButtonSize: CGFloat = 42
         static let headerSectionHeight: CGFloat = 34
         static let collectionViewCellHeight: CGFloat = 148
-        
-        static let titleText = "Трекеры"
-        static let emptyStateText = "Что будем отслеживать?"
     }
 }

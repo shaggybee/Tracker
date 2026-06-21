@@ -20,6 +20,17 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         let label = UILabel()
         
         label.font = Font.medium16
+        label.textColor = .ypBlack
+        
+        return label
+    }().forAutoLayout
+    
+    private lazy var completedDaysCountLabel: UILabel = {
+        let label = UILabel()
+        
+        label.font = Font.bold32
+        label.textColor = .ypBlack
+        label.textAlignment = .center
         
         return label
     }().forAutoLayout
@@ -33,7 +44,9 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }().forAutoLayout
     
     private lazy var nameInputField: InputFieldView = {
-        let inputFieldView = InputFieldView(placeholder: Constants.nameFieldPlaceholder)
+        let inputFieldView = InputFieldView(
+            placeholder: NSLocalizedString(L10n.Tracker.nameFieldPlaceholder, comment: "")
+        )
         
         return inputFieldView
     }().forAutoLayout
@@ -41,8 +54,13 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private lazy var submitButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.submitButtonText, for: .normal)
+        button.setTitle(
+            presenter?.submitButtonTitle ?? "",
+            for: .normal
+        )
         button.backgroundColor = .ypGray
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypBlack, for: .disabled)
         button.isEnabled = false
         button.layer.cornerRadius = Radius.size16
         button.addTarget(
@@ -56,8 +74,11 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         
-        button.setTitle(Constants.cancelButtonText, for: .normal)
-        button.backgroundColor = .white
+        button.setTitle(
+            NSLocalizedString(L10n.Actions.cancel, comment: ""),
+            for: .normal
+        )
+        button.backgroundColor = .ypWhite
         button.layer.cornerRadius = Radius.size16
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.ypRed.cgColor
@@ -145,6 +166,10 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         nameInputField.setError(error)
     }
     
+    func setTrackerNameField(text: String) {
+        nameInputField.setText(text)
+    }
+    
     func setDescription(for trackerOption: TrackerOptionType, with text: String) {
         trackerOptionsView.setDescription(for: trackerOption, with: text)
     }
@@ -158,7 +183,7 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         titleLabel.text = presenter?.trackerFormTitle
         
@@ -167,6 +192,15 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
         view.addSubview(titleLabel)
         view.addSubview(contentScrollView)
         view.addSubview(footerButtonsStackView)
+        
+        if presenter?.isEditMode == true {
+            completedDaysCountLabel.text = String.localizedStringWithFormat(
+                NSLocalizedString(L10n.Other.days, comment: ""),
+                presenter?.completedDaysCount ?? 0
+            )
+            
+            contentScrollView.addSubview(completedDaysCountLabel)
+        }
         
         contentScrollView.addSubview(nameInputField)
         contentScrollView.addSubview(trackerOptionsView)
@@ -202,6 +236,23 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     private func setupConstraints() {
+        let editModeConstraints: [NSLayoutConstraint] = [
+            completedDaysCountLabel.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor),
+            completedDaysCountLabel.leadingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.leadingAnchor),
+            completedDaysCountLabel.trailingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.trailingAnchor),
+            nameInputField.topAnchor.constraint(equalTo: completedDaysCountLabel.bottomAnchor, constant: Spacing.space40),
+        ]
+        
+        let createModeConstraints: [NSLayoutConstraint] = [
+            nameInputField.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor),
+        ]
+        
+        if presenter?.isEditMode == true {
+            NSLayoutConstraint.activate(editModeConstraints)
+        } else {
+            NSLayoutConstraint.activate(createModeConstraints)
+        }
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: Spacing.space28),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -210,10 +261,8 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
             contentScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.space16),
             contentScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.space16),
             contentScrollView.bottomAnchor.constraint(equalTo: footerButtonsStackView.topAnchor, constant: -Spacing.space16),
-            
             contentScrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: contentScrollView.frameLayoutGuide.widthAnchor),
             
-            nameInputField.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor),
             nameInputField.leadingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.leadingAnchor),
             nameInputField.trailingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.trailingAnchor),
             
@@ -300,7 +349,13 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
     }
     
     @objc private func didTapSubmitButton(_ sender: UIButton) {
-        presenter?.createTracker()
+        guard let presenter else { return }
+        
+        if (presenter.isEditMode) {
+            presenter.updateTracker()
+        } else {
+            presenter.createTracker()
+        }
         
         view.window?.rootViewController?.dismiss(animated: true)
     }
@@ -317,16 +372,21 @@ final class TrackerFormViewController: UIViewController, TrackerFormViewControll
 // MARK: - TrackerOptionsViewDelegate
 extension TrackerFormViewController: TrackerOptionsViewDelegate {
     func trackerOptionsView(_ view: TrackerOptionsView, didSelectOptionWith type: TrackerOptionType) {
+        guard let presenter else { return }
+        
         switch type {
         case .category:
             let trackerCategoriesVC = TrackerCategoriesViewController()
-            let viewModel = TrackerCategoriesViewModel(currentCategory: presenter?.categoryName)
+            let viewModel = TrackerCategoriesViewModel(
+                currentCategory: presenter.categoryName,
+                canManageCategories: !presenter.isEditMode
+            )
             
             trackerCategoriesVC.initialize(viewModel: viewModel)
             trackerCategoriesVC.onTrackerCategoryChanged = { [weak self] categoryName in
                 guard let self else { return }
                 
-                presenter?.didChangeTrackerCategory(categoryName)
+                self.presenter?.didChangeTrackerCategory(categoryName)
                 
                 if ((categoryName ?? "").isEmpty) { return }
                 
@@ -336,7 +396,7 @@ extension TrackerFormViewController: TrackerOptionsViewDelegate {
             present(trackerCategoriesVC, animated: true)
         case .schedule:
             let trackerScheduleVC = TrackerScheduleViewController()
-            let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter?.selectedDays ?? [])
+            let scheduleViewPresenter = TrackerScheduleViewPresenter(selectedDays: presenter.selectedDays)
             
             scheduleViewPresenter.view = trackerScheduleVC
             trackerScheduleVC.delegate = self
@@ -406,9 +466,5 @@ private extension TrackerFormViewController {
         static let footerButtonsStackViewHeight: CGFloat = 60
         static let headerSectionHeight: CGFloat = 34
         static let rowItemsCount: Int = 6
-        
-        static let nameFieldPlaceholder = "Введите название трекера"
-        static let submitButtonText = "Создать"
-        static let cancelButtonText = "Отменить"
     }
 }

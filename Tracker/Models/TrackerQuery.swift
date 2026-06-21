@@ -9,4 +9,16 @@ import Foundation
 
 struct TrackerQuery {
     let date: Date
+    let search: String
+    let filter: TrackersFilter
+    
+    init(
+        date: Date,
+        search: String = "",
+        filter: TrackersFilter = .all
+    ) {
+        self.date = date
+        self.search = search
+        self.filter = filter
+    }
 }
